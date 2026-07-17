@@ -27,7 +27,13 @@ halben Sachen. Screenshot-Beleg im PROGRESS-LOG.
 
 - Kein Umbau an Auth/Rollen, Prisma-Schema, Migrationsketten im Alleingang → hier als
   Vorschlag unter „## Rückmeldungen" ablegen und stoppen.
-- Nur Branch `autopilot`, nur Test-Umgebung. Nie Prod. Nie main.
+- Nur Branch `autopilot`. Nie main. Kein force-push.
+
+**Prod ist freigegeben.** AiKydo ist aktuell reine Demo-Werkbank — keine echten Nutzer,
+nichts schützenswert. Test UND Prod dürfen bespielt und deployed werden (Test zum Prüfen
+zuerst empfohlen, aber kein Zwang). Demo-/Sim-Daten weiter als solche markieren
+(Tenant `sim-team`, „sim:"-Prefix), damit später EIN Befehl alles Demo+Sim restlos entfernt.
+Backup/Branch/Commit bleiben Pflicht; STOP-Schalter und Cron-Deckel bleiben.
 
 ---
 
