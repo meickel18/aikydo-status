@@ -185,3 +185,29 @@ Format je Eintrag:
   (`DELETE FROM "RawInput" WHERE id LIKE 'demo-ri-%';`); nextStep auf zwei echten Lines gesetzt.
 - Nächster Schritt: nextStep aus der Storyline/AI vorschlagen; ggf. „ändern"-Reveal auf einen
   echten Zustandswechsel (Statuswechsel direkt aus der Meta-Zeile) verschlanken.
+
+### 2026-07-18 — „Stand" (Verlaufszusammenfassung) im Line-Detail sichtbar
+- Befund: Die Haiku-Verlaufszusammenfassung (`summary`) war nur auf der /threads-Übersicht
+  sichtbar, im Line-Detail NICHT — obwohl das ZIEL sie als Teil der Storyline führt („sofort
+  sehen: den Verlauf, den Stand und den nächsten Schritt"). Der „Stand" fehlte also im Detail.
+- Gebaut (nur Frontend, /threads/[id]): Eine beiläufige „Stand"-Zeile zwischen Meta-Zeile und
+  nächstem Schritt — tertiärer Uppercase-Eyebrow „STAND" (de) / „WHERE IT STANDS" (en) + Summary
+  in ruhiger Sekundärfarbe (#a1a1aa, 0.9rem). Nur wenn `summary` vorhanden. Leseordnung jetzt:
+  Titel → Meta → Stand (Rückblick, ruhig) → Nächster Schritt (Accent-Hero) → Verlauf (Zeitschiene).
+  Kein Schema-/Backend-Eingriff (Feld wird von GET /threads/:id bereits geliefert). i18n de+en
+  (standHeading). SW-Cache v13→v14. DESIGN-LOCK-konform (flach, gesperrte Palette, kein Glow).
+- Infra-Befund + Fix: Der Sim-Tenant `sim-team` existierte nur in `kydo_test`, NICHT auf Prod (kydo)
+  — Screenshots auf Prod mit dem Sim-User schlugen daher mit „Tenant not found" fehl. Sim-Daten
+  per `.autopilot/sim/seed.sql` jetzt auch in die Prod-DB geseedet (idempotent, Tenant `sim-team`,
+  „sim:"-Prefix, per `.autopilot/sim/wipe.sql` restlos entfernbar). Damit funktioniert die
+  PROMPT-Abnahme (Screenshot auf Prod mit Sim-Tenant) ab jetzt auch auf Prod.
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache). Abnahme direkt auf
+  app.aikydo.de (Line „sim: Messestand Halle 7 beschaffen"): Die „STAND"-Zeile rendert ruhig
+  zwischen Meta und nächstem Schritt, Summary „Standbau fuer die Herbstmesse; Auftrag vergeben.";
+  Hierarchie + Storyline-Schiene intakt; Mobil 390 wrappt sauber. Nur bekannte 401/403.
+  - Screenshot: .autopilot/shots/2026-07-18_stand-detail.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-18_stand-detail-390.png
+- Commit: (dieser Lauf) feat(threads): Stand-Zusammenfassung (Haiku) im Line-Detail sichtbar
+- Nächster Schritt: Damit sind im Detail alle drei ZIEL-Elemente sichtbar (Verlauf, Stand,
+  nächster Schritt). Offen: nextStep/Stand aus der Storyline per AI vorschlagen (Backend, Rate-Limit
+  beachten) — sonst Momentum-/Mindmap-Ansicht bzw. Eingang→Storyline-Fluss mit gleichem Maßstab schärfen.
