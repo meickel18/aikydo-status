@@ -236,3 +236,34 @@ Format je Eintrag:
 - Nächster Schritt: Eingang→Storyline-Fluss weiter schärfen — z.B. nach dem Zuordnen ein kurzer
   Bestätigungs-/Undo-Hinweis (Zuruf wird still entfernt) oder die „Line wählen …"-Zuordnung
   visuell klarer vom KI-Vorschlag trennen. Alternativ Momentum-/Mindmap-Ansicht mit gleichem Maßstab.
+
+### 2026-07-18 — Eingang: Bestätigung + Rückgängig beim Rausfischen
+- Befund: Nach Zuordnen/Verwerfen verschwand die Zuruf-Karte STUMM — kein Beleg, WOHIN
+  gefischt wurde, und ein Fehlklick auf die prominente Best-Treffer-Accent-Pille (ein Klick =
+  zugeordnet) war nicht korrigierbar. Widerspricht „schnelle Erfassung" + der Rausfisch-Metapher.
+- Gebaut:
+  - Backend: neuer Endpoint `POST /raw-inputs/:id/restore` (`inbox.restore`) — setzt `threadId`
+    + `dismissedAt` zurück (Zuruf zurück in den Eingang), Line selbst bleibt unberührt. KEIN
+    Schema-Wechsel (nutzt vorhandene Felder), Audit `RAWINPUT_RESTORED`.
+  - Frontend (`/eingang`): Statt stummem Entfernen zeigt die Karte kurz einen flachen
+    Accent-Bestätigungs-Strip: „✓ → Zugeordnet zu «Line»" / „✓ → Neue Line «…»" / „Aus dem
+    Eingang entfernt". Bei Zuordnen/Verwerfen rechts ein „Rückgängig" (ruft restore → Karte
+    kehrt in den Normalzustand zurück). Nach 6 s wird der Zuruf still aus der Liste entfernt.
+    Ziel-Titel kommt aus dem gewählten Vorschlag/Select bzw. der neu erzeugten Line. Neue-Line
+    bewusst OHNE Undo (Löschen einer frischen Line wäre schwerer/riskanter). i18n de+en
+    (confirmAssigned/confirmCreated/confirmDismissed/undo). SW-Cache v15→v16. DESIGN-LOCK-konform
+    (gesperrte Accent-Farbe, flach, kein Glow).
+- Geprüft: tsc backend+frontend sauber. Deploy NUR Prod (backend + frontend --no-cache),
+  `/eingang` → HTTP 200, `POST …/restore` ohne Auth → 401 (Route existiert). Abnahme mit
+  echtem Klick-Flow (Playwright, Sim-Tenant, 5 Zurufe): Best-Treffer-Pille geklickt → Strip
+  „✓ → Zugeordnet zu «sim: Messestand Halle 7 beschaffen» · Rückgängig" erscheint oben, Karten
+  darunter rücken auf; „Rückgängig" geklickt → restore → Karte ist wieder da, „5 offen"
+  unverändert (Sim-Daten sauber). Mobil 390: Strip kürzt die Nachricht mit Ellipsis, „Rückgängig"
+  bleibt sichtbar (flexShrink), keine Kollision. Nur bekannte/ignorierbare 401/403.
+  - Screenshot (Bestätigung): .autopilot/shots/2026-07-18_eingang-confirm-undo.png
+  - Screenshot (Bestätigung Mobil): .autopilot/shots/2026-07-18_eingang-confirm-undo-390.png
+  - Screenshot (nach Undo, Karte zurück): .autopilot/shots/2026-07-18_eingang-after-undo.png
+- Commit: cbac93d9 feat(eingang): Bestätigung + Rückgängig beim Rausfischen (+ PROGRESS-LOG)
+- Nächster Schritt: Eingang→Storyline-Fluss ist damit rund (Vorschlags-Hierarchie + Bestätigung/
+  Undo). Nächste Kandidaten: „Line wählen …"-Select visuell klarer vom KI-Vorschlag trennen, oder
+  Momentum-/Mindmap-Ansicht mit gleichem Maßstab (schnelle Erfassung) schärfen.
