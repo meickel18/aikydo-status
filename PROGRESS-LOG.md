@@ -103,3 +103,30 @@ Format je Eintrag:
   dedizierten „nextStep"-Feld (ORCHESTRATOR Rückmeldungen). Ohne diese Entscheidung:
   Storyline weiter schärfen (z.B. Sprachnotiz-Wiedergabe je Schritt, falls Audio-URL
   am RawInput vorhanden) oder Momentum-/mindmap-Ansicht prüfen.
+
+### 2026-07-18 — Zuruf-Medium je Storyline-Schritt (Icon + Label)
+- Befund vorab: Es gibt KEIN Audio-URL-Feld am `RawInput` — Sprachnotizen werden zu
+  Text transkribiert (`type: "voice"`, `content` = Transkript, `metadata` nur
+  Confidence/Dauer). Echte Sprachnotiz-Wiedergabe ist ohne Audio-Storage nicht
+  möglich (aus letztem Log als Option genannt → hiermit geklärt/verworfen).
+- Gebaut: Jeder Storyline-Schritt zeigt statt des rohen Typ-Strings („voice · deepgram")
+  jetzt ein flaches Icon + lokalisiertes Label je Medium — Sprachnotiz (Mikrofon),
+  Foto (Kamera), E-Mail (Umschlag), Notiz/Chat (Sprechblase). Damit ist die Herkunft
+  je Schritt auf einen Blick erfassbar (ZIEL: „Sprachnotiz/Text je Schritt"). Die
+  technische `source` (deepgram/ocr) wandert in den title-Tooltip statt sichtbar zu
+  stören. Reines Frontend, kein Schema/Backend-Eingriff. DESIGN-LOCK-konform: flach,
+  gesperrte Palette, Icons in currentColor (Sekundärgrau). i18n de+en. SW-Cache v10→v11.
+- Geprüft: tsc sauber. Test-Deploy (frontend-test), Screenshot 1440 + 390 mit Sim-Daten
+  (sim-team, Line „sim: Messestand Halle 7 beschaffen"). Die Storyline liest sich
+  top-down mit klaren Medien: START Notiz (8.7.) → E-Mail (12.7.) → Sprachnotiz (15.7.)
+  → JETZT Notiz (17.7.). Icons subtil/flach, Schiene + START/JETZT-Badges intakt, Mobil
+  wrappt sauber ohne Kollision. Nur bekannte/ignorierbare 401/403-Fehler. Prod nachgezogen
+  (frontend, app.aikydo.de/threads/sim-t-messe → HTTP 200).
+  - Screenshot: .autopilot/shots/2026-07-18_storyline-medium.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-18_storyline-medium-390.png
+- Commit: 2397bd48 feat(threads): Zuruf-Medium je Storyline-Schritt mit Icon + Label
+- Nächster Schritt: Offen bleibt die Entscheidung zum dedizierten „nextStep"-Feld
+  (ORCHESTRATOR Rückmeldungen). Das Storyline-Detail ist damit in Leserichtung,
+  Zeitangabe UND Medium ausgereift. Nächste Kandidaten: Momentum-Übersicht (/momentum)
+  bzw. /mindmap-Ansicht mit gleichem Maßstab schärfen, oder Eingang→Storyline-Fluss
+  (Zuruf aus dem Pool rausfischen) auf schnelle Erfassung prüfen.
