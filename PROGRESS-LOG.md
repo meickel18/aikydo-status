@@ -74,3 +74,32 @@ Format je Eintrag:
   Rückmeldungen). Parallel dazu ORCHESTRATOR Punkt 3 möglich: Storyline-Timenline im
   Detail (aktuell newest-first, DESC) auf das ZIEL-Bild „links Start → rechts nächster
   Schritt" ausrichten (chronologisch aufsteigend) — reine Frontend-Lesbarkeit, kein Schema.
+
+### 2026-07-18 — Storyline-Detail chronologisch (Start→Jetzt) mit Timeline-Schiene
+- Gebaut: ORCHESTRATOR Punkt 3 umgesetzt. Die Timeline im Line-Detail
+  (`/threads/[id]`) ist jetzt eine echte Storyline: chronologisch AUFSTEIGEND
+  sortiert (vorher newest-first/DESC) — Start oben, nächster Schritt/„Jetzt" unten.
+  Neu: flache vertikale Timeline-Schiene (2px Linie `#3d444d` + Dots je Schritt;
+  frühere Dots hohl mit Rand `#4d555e`, der neueste gefüllt Accent `#5F74D1`).
+  Statt nur Relativzeit steht jetzt das absolute Datum je Schritt (locale-aware,
+  Jahr nur wenn abweichend). „Start"-/„Jetzt"-Badges ankern die Leserichtung.
+  Section-Label „Aktivitäten"→„Verlauf" (de) / „Storyline" (en). Die schmale
+  Detailspalte (max 800px, mobil 390) macht die vertikale Schiene zur getreuen
+  Umsetzung der „Start→nächster Schritt"-Metapher (horizontaler Scroll für
+  Text-je-Schritt wäre schlechter erfassbar). Nur gesperrte Palette, kein Glow
+  (DESIGN-LOCK-konform, flat). i18n de+en. SW-Cache v9→v10.
+- Geprüft: tsc sauber. Test-Deploy (frontend-test), Screenshot 1440 + 390 mit
+  Sim-Daten (sim-team, Line „sim: Messestand Halle 7 beschaffen", 4 Zurufe).
+  Die Storyline liest sich top-down: START 8.Juli → 12.Juli → 15.Juli → JETZT 17.Juli
+  (Accent-Dot); der letzte Schritt zeigt sogar den GTD-Nächsten-Schritt („Naechster
+  Schritt: Grafik fuer Standrueckwand …"). Schiene + Dots verbinden sauber, Mobil
+  wrappt korrekt. Nur bekannte/ignorierbare 403-Fehler. Prod nachgezogen
+  (frontend, app.aikydo.de/threads/sim-t-messe → HTTP 200).
+  - Screenshot: .autopilot/shots/2026-07-18_storyline-detail.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-18_storyline-detail-390.png
+- Commit: (dieser Lauf) feat(threads): Storyline-Detail chronologisch (Start→Jetzt)
+- Nächster Schritt: ORCHESTRATOR Punkt 1–3 sind damit adressiert (Farbcodierung,
+  Summary auf Übersicht, Storyline-Leserichtung). Offen bleibt die Entscheidung zum
+  dedizierten „nextStep"-Feld (ORCHESTRATOR Rückmeldungen). Ohne diese Entscheidung:
+  Storyline weiter schärfen (z.B. Sprachnotiz-Wiedergabe je Schritt, falls Audio-URL
+  am RawInput vorhanden) oder Momentum-/mindmap-Ansicht prüfen.
