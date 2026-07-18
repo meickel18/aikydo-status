@@ -211,3 +211,28 @@ Format je Eintrag:
 - Nächster Schritt: Damit sind im Detail alle drei ZIEL-Elemente sichtbar (Verlauf, Stand,
   nächster Schritt). Offen: nextStep/Stand aus der Storyline per AI vorschlagen (Backend, Rate-Limit
   beachten) — sonst Momentum-/Mindmap-Ansicht bzw. Eingang→Storyline-Fluss mit gleichem Maßstab schärfen.
+
+### 2026-07-18 — Eingang (Pool → rausfischen): Vorschlags-Hierarchie
+- Befund: Der Eingang (`/eingang`) zeigte je Zuruf bis zu 5 GLEICHWERTIGE Vorschlags-Pillen
+  (Scores von ~53% runter bis ~36%). Das Auge musste alle lesen, obwohl das Backend die
+  Vorschläge längst nach Score sortiert liefert (inbox.service `suggestLines`, `slice(0,5)`,
+  `.sort(b.score-a.score)`) — die KI hatte den Favoriten also schon, die UI stellte ihn aber
+  nicht heraus. Widerspricht dem Maßstab „schnelle Erfassung" und der Metapher „Aufgabe
+  rausfischen" (ein Klick sollte genügen).
+- Gebaut (nur Frontend, `/eingang`): Klare Hierarchie im Vorschlags-Block. Der beste Treffer
+  ist jetzt eine prominente Accent-Pille (#5F74D1 gefüllt, „→ {Titel} {score}%", ein Klick =
+  zugeordnet). Die weiteren Vorschläge liegen ruhig darunter als flache Outline-Pillen — max 2
+  sichtbar, der Rest hinter „+N weitere" (neuer State `showMore`). Best-Treffer-Titel kürzt mit
+  Ellipsis, Score bleibt via `flexShrink:0` sichtbar. Karte dadurch spürbar kürzer → mehr Pool
+  auf einen Blick. Kein Backend/Schema-Eingriff (Endpoint liefert bereits sortiert). i18n de+en
+  (`moreSuggestions`). SW-Cache v14→v15. DESIGN-LOCK-konform (gesperrte Accent-Farbe, flach, kein Glow).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/eingang` → HTTP 200.
+  Abnahme mit Screenshot-Tool auf app.aikydo.de (Sim-Tenant, 5 offene Zurufe): Desktop 1440 zeigt
+  je Karte den Best-Treffer als Accent-Pille + 2 ruhige Pillen + „+2 weitere"; Mobil 390 wrappt
+  sauber, Best-Treffer kürzt korrekt mit sichtbarem Score. Nur bekannte/ignorierbare 401/403.
+  - Screenshot: .autopilot/shots/2026-07-18_eingang-vorschlag-hierarchie.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-18_eingang-vorschlag-hierarchie-390.png
+- Commit: 9a901159 feat(eingang): Vorschlags-Hierarchie beim Rausfischen — bester Treffer prominent
+- Nächster Schritt: Eingang→Storyline-Fluss weiter schärfen — z.B. nach dem Zuordnen ein kurzer
+  Bestätigungs-/Undo-Hinweis (Zuruf wird still entfernt) oder die „Line wählen …"-Zuordnung
+  visuell klarer vom KI-Vorschlag trennen. Alternativ Momentum-/Mindmap-Ansicht mit gleichem Maßstab.
