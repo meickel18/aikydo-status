@@ -157,3 +157,31 @@ Format je Eintrag:
   daher gelten sie nun als „läuft". Können in der UI jederzeit geleert werden.
 - Nächster Schritt: nextStep optional auch aus dem Storyline-Detail/AI ableitbar machen
   (Vorschlag statt manuell). Sonst Momentum-/Mindmap-Ansicht mit gleichem Maßstab schärfen.
+
+### 2026-07-18 — Line-Detailseite neu gedacht: die Seite IST die Storyline
+- Richtung (Michael): Detailseite ist Alt-Mechanik, komplett neu denkbar. Pillen-Reihen
+  (Status/Bereich) dominierten, obwohl sie Verwaltung sind. Ziel: sofort Verlauf + Stand +
+  nächster Schritt sehen; Status/Bereich beiläufig; leere Lines mit sinnvollem Einstieg.
+- Gebaut (nur Frontend, /threads/[id]):
+  - Status/Bereich → **eine kompakte Meta-Zeile** unter dem Titel: farbiger Stand-Dot +
+    Label · Bereich · „seit {Datum}" · „ändern". Die volle Verwaltung (Status-/Bereich-Chips)
+    erscheint nur nach Klick auf „ändern" (einklappbar). Kein Dauer-Rauschen mehr.
+  - **Nächster Schritt** als Hauptdarsteller: prominente Accent-Box mit Uppercase-Eyebrow
+    „Nächster Schritt" + großem Wert (0.95rem), direkt unter der Meta-Zeile.
+  - **Verlauf/Storyline** bleibt der Kern (bestehende Zeitschiene START→JETZT).
+  - Leere Line: statt „Noch keine Aktivitäten" jetzt ein Einstiegs-Zustand „Die Storyline
+    startet hier" + Erklärtext + Button **„Ersten Schritt festhalten"** (öffnet + scrollt zum
+    nextStep-Feld).
+  - i18n de+en (metaSince/metaEdit/metaDone/nextStepHeading/emptyStoryline*/captureFirstStep).
+    SW-Cache v12→v13. DESIGN-LOCK-konform (gesperrte Palette, flach, kein Glow).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache). Abnahme direkt auf
+  app.aikydo.de (Prod-Tenant): (1) Line mit voller Demo-Storyline (Notiz→E-Mail→Sprachnotiz)
+  zeigt Meta-Zeile + prominenten nextStep + Verlauf als Hauptdarsteller; (2) leere Line zeigt
+  den neuen Einstiegs-Zustand; Mobil 390 wrappt sauber. Nur bekannte 401/403/404.
+  - Screenshot (Storyline): .autopilot/shots/2026-07-18_detail-redesign-storyline.png
+  - Screenshot (Storyline Mobil): .autopilot/shots/2026-07-18_detail-redesign-storyline-390.png
+  - Screenshot (leere Line): .autopilot/shots/2026-07-18_detail-redesign-empty.png
+- Demo-Daten auf Prod (löschbar): 3 Zurufe `demo-ri-1..3` auf „Steuererklärung 2025"
+  (`DELETE FROM "RawInput" WHERE id LIKE 'demo-ri-%';`); nextStep auf zwei echten Lines gesetzt.
+- Nächster Schritt: nextStep aus der Storyline/AI vorschlagen; ggf. „ändern"-Reveal auf einen
+  echten Zustandswechsel (Statuswechsel direkt aus der Meta-Zeile) verschlanken.

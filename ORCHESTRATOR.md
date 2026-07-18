@@ -10,18 +10,26 @@ Kurzregel: **Oben steht, was zu tun ist. Unten meldet der Autopilot zurück.**
 
 ## Aktuelle Richtung
 
-**Fokus: Momentum-Übersicht schärfen.**
-Die Momentum-Ansicht ist die Signatur des Portals: alle Lines auf einen Blick,
-„liegengeblieben" vs. „läuft gut". Genau das muss visuell + kognitiv in <2 Sek.
-erfassbar sein. Nächste kleine Schritte in dieser Richtung:
+**Fokus: Line-Detailseite = die Storyline.** (Michael, 2026-07-18)
+Die Line-Detailseite (`/threads/[id]`) ist Alt-Mechanik und darf komplett neu gedacht werden —
+nichts daran ist schützenswert. Wer eine Line öffnet, muss **sofort** sehen: den Verlauf
+(Zeitschiene), den Stand und den nächsten Schritt. Konkret:
 
-1. Liegengebliebene Lines müssen **herausstechen** — klare visuelle Hierarchie /
-   Farbcodierung nach Momentum-Score (heute=+100 … 14T=-100), ohne DESIGN-LOCK zu brechen.
-2. Der nächste kleine Schritt je Line (GTD-Geist) sollte auf der Übersicht sichtbar sein.
-3. Storyline-Timeline (links Start → rechts nächster Schritt) auf schnelle Lesbarkeit prüfen.
+1. Die Pillen-Reihen (Offen/Pausiert/Blockiert/Erledigt + Privat/Business/Gemischt) sind
+   **Verwaltung, nicht Inhalt** — sie dürfen die Seite nicht dominieren. Stand/Bereich werden
+   beiläufige Nebeninfo (z.B. kompakt im Kopf), nicht der Hauptdarsteller.
+2. Die Seite **IST** die Storyline: Verlauf + nextStep sind die Hauptdarsteller.
+3. Leere Lines ohne Zurufe brauchen einen sinnvollen Zustand (direkter Einstieg
+   „Ersten Schritt festhalten" statt „Noch keine Aktivitäten").
+
+Maßstab bleibt: schnellste Erfassung, DESIGN-LOCK, nextStep-Feld (freigegeben) einbeziehen.
+Das „Wie" ist frei entscheidbar.
 
 Immer: **ein** fertiger, selbst geprüfter Schritt pro Lauf. Kein Klein-Klein, keine
 halben Sachen. Screenshot-Beleg im PROGRESS-LOG.
+
+_(Vorheriger Fokus „Momentum-Übersicht schärfen" — alle 3 Punkte adressiert: Farbcodierung,
+Summary + nextStep auf der Übersicht, Storyline-Leserichtung. Siehe PROGRESS-LOG.)_
 
 ## Tabu (zusätzlich zu PROMPT.md / CLAUDE.md „NICHT MACHEN")
 
