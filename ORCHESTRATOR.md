@@ -29,11 +29,14 @@ halben Sachen. Screenshot-Beleg im PROGRESS-LOG.
   Vorschlag unter „## Rückmeldungen" ablegen und stoppen.
 - Nur Branch `autopilot`. Nie main. Kein force-push.
 
-**Prod ist freigegeben.** AiKydo ist aktuell reine Demo-Werkbank — keine echten Nutzer,
-nichts schützenswert. Test UND Prod dürfen bespielt und deployed werden (Test zum Prüfen
-zuerst empfohlen, aber kein Zwang). Demo-/Sim-Daten weiter als solche markieren
-(Tenant `sim-team`, „sim:"-Prefix), damit später EIN Befehl alles Demo+Sim restlos entfernt.
-Backup/Branch/Commit bleiben Pflicht; STOP-Schalter und Cron-Deckel bleiben.
+**Nur noch Prod.** AiKydo ist aktuell reine Demo-Werkbank — keine echten Nutzer, nichts
+schützenswert. Ab jetzt wird **direkt auf Prod** gebaut, geprüft (Screenshots) und deployed
+(app.aikydo.de / api.aikydo.de). Die **Test-Umgebung wird nicht mehr mitbespielt** — sie wird
+erst wieder relevant, wenn echte Nutzer live sind. **Einzige Ausnahme:** DB-Migrationen zuerst
+kurz auf Test verifizieren (`migrate deploy` gegen kydo_test), dann auf Prod — danach das Feature
+komplett auf Prod. Demo-/Sim-Daten weiter als solche markieren (Tenant `sim-team`, „sim:"-Prefix),
+damit später EIN Befehl alles Demo+Sim restlos entfernt. Backup/Branch/Commit bleiben Pflicht;
+STOP-Schalter und Cron-Deckel bleiben.
 
 ---
 
@@ -52,6 +55,11 @@ _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
 
+- **2026-07-18 — ✅ ENTSCHIEDEN + GEBAUT: „nextStep"-Feld je Line.** Michael hat das dedizierte
+  Feld freigegeben. Umgesetzt: `nextStep String?` auf `Thread` (Migration `20260718_add_thread_nextstep`,
+  Test→Prod verifiziert), im Line-Detail editierbar (Accent-Box, GTD-Nächster-Schritt), auf der
+  Übersicht als „→ nächster Schritt" (Accent, eine Zeile). Damit ist Punkt 2 der aktuellen Richtung
+  erfüllt. Ursprüngliche Rückmeldung zur Nachvollziehbarkeit unten belassen:
 - **2026-07-18 — „nextStep"-Feld je Line (Entscheidung nötig).** Punkt 2 der aktuellen
   Richtung („nächster kleiner Schritt je Line auf der Übersicht sichtbar") lässt sich nicht
   sauber ableiten: Ein echtes `nextStep` existiert NIRGENDS (kein Prisma-Feld, kein

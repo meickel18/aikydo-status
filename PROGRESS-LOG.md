@@ -130,3 +130,30 @@ Format je Eintrag:
   Zeitangabe UND Medium ausgereift. Nächste Kandidaten: Momentum-Übersicht (/momentum)
   bzw. /mindmap-Ansicht mit gleichem Maßstab schärfen, oder Eingang→Storyline-Fluss
   (Zuruf aus dem Pool rausfischen) auf schnelle Erfassung prüfen.
+
+### 2026-07-18 — nextStep-Feld je Line (GTD-Nächster-Schritt) + Umstellung „nur noch Prod"
+- Entscheidung: Michael hat das dedizierte `nextStep`-Feld freigegeben (war offene Rückmeldung).
+- Gebaut: `nextStep String?` auf `Thread` (nullable, kein Default). Backend: update-thread.dto,
+  thread-response.dto, threads.service (Update-Mapping); GET/PATCH liefern/setzen das Feld.
+  Frontend Detail (/threads/[id]): editierbare Accent-Box „Nächster Schritt:" (Klick→Input,
+  Enter speichert, Escape verwirft) nach dem blockedBy-Muster. Frontend Übersicht (/threads):
+  „→ nächster Schritt" als eine Accent-Zeile (Ellipsis + Tooltip) unter der Meta-Zeile.
+  i18n de+en (nextStepLabel/Placeholder/Short). SW-Cache v11→v12. DESIGN-LOCK-konform (Accent
+  #5F74D1, flach, kein Glow).
+- Migration `20260718_add_thread_nextstep`: zuerst auf Test verifiziert (kydo_test, Spalte
+  text/nullable), dann Prod (kydo) via `prisma migrate deploy`. Beide grün.
+- Geprüft: tsc backend+frontend sauber. Deploy NUR Prod (backend+frontend --no-cache).
+  Abnahme mit Screenshot-Tool direkt auf app.aikydo.de (Prod-Tenant, echte Daten): PATCH
+  über die Prod-API persistiert; Detail zeigt die Accent-Box (Desktop+Mobil 390 wrappt sauber);
+  Übersicht zeigt die „→ nächster Schritt"-Zeile auf zwei Lines. Nur bekannte 401/403.
+  - Screenshot (Detail): .autopilot/shots/2026-07-18_nextstep-detail.png
+  - Screenshot (Detail Mobil): .autopilot/shots/2026-07-18_nextstep-detail-390.png
+  - Screenshot (Liste full): .autopilot/shots/2026-07-18_nextstep-liste-full.png
+- Arbeitsweise umgestellt: ab jetzt wird DIREKT auf Prod gebaut/geprüft/deployed; Test-Umgebung
+  nicht mehr mitbespielt (Ausnahme: DB-Migration erst Test, dann Prod). Eingetragen in
+  ORCHESTRATOR.md (aktuelle Richtung/Tabu) und PROMPT.md (harte Grenzen, Deploy-, Screenshot-Schritt).
+- Hinweis: Als Abnahme-Beleg wurden zwei echte Lines mit einem nextStep befüllt
+  („Steuererklärung 2025", „AiKydo MVP bauen") — jede Bearbeitung setzt lastActivity=jetzt,
+  daher gelten sie nun als „läuft". Können in der UI jederzeit geleert werden.
+- Nächster Schritt: nextStep optional auch aus dem Storyline-Detail/AI ableitbar machen
+  (Vorschlag statt manuell). Sonst Momentum-/Mindmap-Ansicht mit gleichem Maßstab schärfen.
