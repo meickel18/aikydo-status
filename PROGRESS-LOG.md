@@ -49,3 +49,28 @@ Format je Eintrag:
   (GTD-Geist) auf der Übersicht sichtbar machen. Dafür braucht die /threads-Liste ein
   „nextStep"-Feld pro Line (aktuell nur in der Timeline/Detailansicht vorhanden) — vor
   Backend-Erweiterung prüfen, ob ein Feld schon existiert oder abgeleitet werden kann.
+
+### 2026-07-18 — Verlaufszusammenfassung je Line auf der Übersicht (/threads)
+- Befund vorab: Ein echtes „nextStep"-Feld existiert NIRGENDS (nicht im Prisma-Schema,
+  nicht im Code) — die Annahme im letzten Log war ungenau; die Detail-Timeline ist nur
+  eine chronologische Zuruf-Liste. Ein dediziertes GTD-nextStep-Feld wäre ein
+  Prisma-Schema-Wechsel → laut ORCHESTRATOR Tabu im Alleingang, deshalb als Vorschlag
+  unter „## Rückmeldungen" abgelegt (nicht gebaut).
+- Gebaut: Das bereits vorhandene, aber bislang NIRGENDS angezeigte `summary`-Feld
+  (die „Haiku-Verlaufszusammenfassung" aus dem ZIEL) je Line auf der Momentum-Übersicht
+  sichtbar gemacht — einzeilig unter dem Titel, gekürzt mit Ellipsis + title-Tooltip,
+  gesperrte Sekundärfarbe (#a1a1aa), flat (DESIGN-LOCK-konform). Damit ist auf einen
+  Blick erfassbar, worum eine Line geht und wo sie steht, ohne sie zu öffnen. Kein
+  Schema-/Backend-Eingriff nötig (Feld wird von /threads bereits geliefert). SW-Cache v8→v9.
+- Geprüft: tsc sauber. Test-Deploy (frontend-test), Screenshot 1440 + 390 mit Sim-Daten
+  (sim-team, sim-user-nadja). Zusammenfassungen rendern sauber unter jedem Titel, Momentum-
+  Farbcodierung + „Liegengeblieben"-Badges intakt, Hierarchie Titel→Summary→Status stimmt.
+  Mobil kürzt die Summary korrekt mit Ellipsis. Nur bekannte/ignorierbare 401/403-Fehler.
+  Prod nachgezogen (frontend, app.aikydo.de/threads → HTTP 200).
+  - Screenshot: .autopilot/shots/2026-07-18_threads-summary.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-18_threads-summary-390.png
+- Commit: c4294f15 feat(threads): Verlaufszusammenfassung je Line auf der Übersicht sichtbar
+- Nächster Schritt: Entscheidung zum „nextStep"-Feld abwarten (siehe ORCHESTRATOR
+  Rückmeldungen). Parallel dazu ORCHESTRATOR Punkt 3 möglich: Storyline-Timenline im
+  Detail (aktuell newest-first, DESC) auf das ZIEL-Bild „links Start → rechts nächster
+  Schritt" ausrichten (chronologisch aufsteigend) — reine Frontend-Lesbarkeit, kein Schema.

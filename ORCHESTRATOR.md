@@ -52,4 +52,17 @@ _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
 
-- _(noch keine)_
+- **2026-07-18 — „nextStep"-Feld je Line (Entscheidung nötig).** Punkt 2 der aktuellen
+  Richtung („nächster kleiner Schritt je Line auf der Übersicht sichtbar") lässt sich nicht
+  sauber ableiten: Ein echtes `nextStep` existiert NIRGENDS (kein Prisma-Feld, kein
+  Code); die Detail-Timeline ist nur eine chronologische Zuruf-Liste, keine
+  GTD-Nächster-Schritt-Angabe. Ein truthful GTD-nextStep braucht ein eigenes,
+  vom Nutzer/AI gepflegtes Feld → das ist ein Prisma-Schema-Wechsel und damit
+  Alleingang-Tabu. **Vorschlag:** neues Feld `nextStep String?` auf `Thread`
+  (nullable, kein Default), im Detail editierbar (wie `blockedBy`), auf der Übersicht
+  als eine Zeile „→ nächster Schritt" anzeigbar. **Alternative (ohne Schema, bereits
+  gebaut):** die vorhandene `summary`-Verlaufszusammenfassung je Line auf der Übersicht
+  sichtbar gemacht — deckt „worum geht's / wo steht's auf einen Blick" ab, ist aber
+  bewusst KEIN GTD-nextStep. Bitte entscheiden, ob das dedizierte Feld gebaut werden soll
+  (dann Migration nötig: `prisma migrate deploy` Test→Prod) oder ob die Zusammenfassung
+  als Ersatz reicht.
