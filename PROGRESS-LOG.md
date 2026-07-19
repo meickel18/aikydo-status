@@ -267,3 +267,30 @@ Format je Eintrag:
 - Nächster Schritt: Eingang→Storyline-Fluss ist damit rund (Vorschlags-Hierarchie + Bestätigung/
   Undo). Nächste Kandidaten: „Line wählen …"-Select visuell klarer vom KI-Vorschlag trennen, oder
   Momentum-/Mindmap-Ansicht mit gleichem Maßstab (schnelle Erfassung) schärfen.
+
+### 2026-07-19 — Momentum-Cockpit: Zeilen klickbar → Line-Storyline öffnen
+- Befund: Die Momentum-Ansicht (`/mindmap`, Nav „Momentum") zeigt alle Storylines als
+  divergierende Leucht-Linien (VERLIERT ← Nullachse → GEWINNT, Gesamt −45) — stark für die
+  „auf einen Blick"-Erfassung, ABER die Zeilen waren tote Grafik: Wer eine rote, weit links
+  liegende (liegengebliebene) Line entdeckte, konnte sie nicht direkt öffnen — Umweg über die
+  Lines-Liste + Suchen. Das brach die Kern-Schleife des Portals: Momentum (Überblick) →
+  liegengebliebene Line öffnen → Storyline.
+- Gebaut (nur Frontend, `/mindmap`): Jede Momentum-Zeile ist jetzt ein Klick-Ziel über die
+  volle Zeilenbreite → navigiert zu `/threads/[id]` (per `window.location.href`, konsistent mit
+  der Klick-Karte der Lines-Liste). Affordance: `cursor:pointer`, dezentes Hover-Band
+  (`rgba(255,255,255,0.04)`, borderRadius 8, transition 0.15s), voller Line-Titel als
+  `title`-Tooltip (Titel wird ab 30 Zeichen gekürzt). Kein Backend/Schema-Eingriff, keine
+  Struktur-Änderung an der Bespoke-Karte. DESIGN-LOCK: mindmap darf Glow/Verlauf; das Hover-Band
+  ist minimal-flach. SW-Cache v16→v17.
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/mindmap` → HTTP 200.
+  Abnahme direkt auf app.aikydo.de (Sim-Tenant): (1) Screenshot 1440 — Cockpit unverändert
+  intakt (8 Lines, Nullachse, Farb-/Längen-Kodierung); (2) Klick-Navigation aktiv per Playwright
+  verifiziert: Klick auf die oberste/rötelste Zeile („sim: Employer-Branding Reel", −100) landet
+  auf `https://app.aikydo.de/threads/sim-t-reel`; (3) Mobil 390 rendert sauber, Zeilen über volle
+  Breite tippbar, keine Regression. Nur bekannte/ignorierbare 401/403.
+  - Screenshot: .autopilot/shots/2026-07-19_momentum-klickbar.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-19_momentum-klickbar-390.png
+- Commit: (dieser Lauf) feat(momentum): Zeilen im Cockpit klickbar → Line-Storyline öffnen
+- Nächster Schritt: Momentum-Cockpit weiter schärfen — z.B. Klick auf die Zahl/Achse als
+  Sortier-Sekundärsignal, oder Hover-Vorschau (Stand-Summary) je Zeile. Alternativ „Line wählen …"-
+  Select im Eingang visuell klarer vom KI-Vorschlag trennen.
