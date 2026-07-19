@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T12:27Z · Commit f808a0f8 · Lauf-Nr. 12 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T14:24Z · Commit 24b26b0c · Lauf-Nr. 13 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # ORCHESTRATOR — Steuerung des AiKydo-Autopilot
 
@@ -294,6 +294,28 @@ freuen, wenn du Teil des Teams wirst."
 _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
+
+- **2026-07-19 — Lauf mit 3 Punkten fertig; die schemafreie Fläche ist weitgehend gebaut, nächste
+  Tranche braucht Schema-/Backend-Entscheidungen.** In diesem Lauf sauber gebaut+geprüft+deployed:
+  (1) Backlog #3 Teilschritt 3 „Bereich markieren → zoomen" → **horizontale Timeline komplett**;
+  (2) Interview Punkt 3 Ranking-Umschalter der Lines-Übersicht (Vernachlässigt/Gepflegt/Neueste/Älteste)
+  → **Punkt 3 rund**; (3) Backlog #5 Variante B **Typ 3** (liegengebliebene Eingangs-Kacheln als flache
+  Ladenhüter-Consult-Fläche unter dem Momentum-Cockpit). Details je Punkt im PROGRESS-LOG.
+  **Beobachtung/Weggabelung:** Die verbleibenden Interview-Punkte hängen jetzt fast alle an **einer
+  Entscheidung von Dir**, weil sie ein neues Modell/Feld brauchen (Alleingang-Tabu):
+  - **#7 Question-Sektion (Ja/Nein-Fragen an die Gruppe)** — braucht vermutlich ein eigenes Modell
+    (`Question`: tenantId, text, options/ja-nein, Antworten je User, offen/beantwortet). **Das ist der
+    größte Hebel**, weil es gleich DREI Dinge freischaltet: die Question-Sektion selbst, **Ladenhüter
+    Typ 2** (unbeantwortete Fragen in die Momentum-Fläche), und einen echten Kanal für **#6
+    Benachrichtigung** („Frage an dich").
+  - **#6 Benachrichtigung (dezenter persönlicher Indikator)** — hat aktuell KEINE echte Datenquelle
+    („für dich geteilt / Frage an dich" gibt es noch nicht) → würde sonst hohl. Sinnvoll erst nach #7
+    und/oder einem Teilen-/Share-Konzept.
+  - **#2 Absender-Vorschlag** und **#4 Dateien-Panel** stehen weiter offen (frühere Rückmeldungen unten).
+  **Vorschlag:** Gib **#7 Question-Sektion** frei (dann baue ich Modell+Migration Test→Prod + UI +
+  Ladenhüter-Typ-2 + Frage-an-dich-Indikator als Kette) — ODER nenne in „## Aktuelle Richtung" einen
+  schemafreien Punkt, den ich stattdessen angehen soll (z.B. „WER" dezent im Momentum-Cockpit; die
+  Interview-Notiz stuft Momentum-nach-Mitarbeitern aber als „später evtl." ein, daher nicht ungefragt).
 
 - **2026-07-19 — Schritt 2 gebaut (Line-Detail zweispaltig) + Dateien-Panel braucht Schema-Entscheidung.**
   Gebaut: Line-Detail (`/threads/[id]`) ist jetzt zweispaltig im Projekt-Detail-Stil — Timeline

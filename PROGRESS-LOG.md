@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T12:27Z · Commit f808a0f8 · Lauf-Nr. 12 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T14:24Z · Commit 24b26b0c · Lauf-Nr. 13 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # PROGRESS-LOG — Autopilot-Verlauf
 
@@ -537,3 +537,100 @@ Format je Eintrag:
 - Nächster Schritt: „WER" analog im Momentum-Cockpit (/mindmap) andeuten, oder Backlog #3 Teilschritt 3
   (Zeitachse zoomen) bzw. Momentum-Ladenhüter (#5, Variante B). Offene Rückmeldungen (Dateien-Panel,
   Projekt-Zuordnung, Absender-Vorschlag) warten weiter auf Michaels Entscheidung.
+
+### 2026-07-19 — Line-Detail: Bereich markieren → zoomen (Backlog #3, Teilschritt 3 — Timeline-Trilogie fertig)
+- Richtung: Interview Punkt 4 — „Wunsch: Bereich markieren (z.B. Woche 16–18) → zoomt in diesen
+  Ausschnitt." Letzter offener Teilschritt der horizontalen Storyline-Timeline (Teilschritte 1
+  horizontal + 2 dynamische Zeitskala waren fertig). Damit ist Backlog #3 komplett.
+- Gebaut (nur Frontend, `/threads/[id]`):
+  - Eine **Brush-Übersichtsleiste** unter der Achsen-Skala: volle Breite (KEIN Scroll) → robustes
+    Pixel↔Zeit-Mapping (der horizontale Scroll-Container der Achse machte Drag-Marquee dort fragil).
+    Die Leiste zeigt die ganze Storyline als Mittelachse + einen Punkt je Schritt an seiner echten
+    Zeit-Position (0..1). Ziehen (PointerEvents + setPointerCapture, `touchAction:none` → Maus & Touch)
+    markiert einen Zeitraum; beim Loslassen zoomt die Haupt-Timeline in den Ausschnitt: die Deltas des
+    Ausschnitts dehnen sich über `computeTimelineLayout(view)` auf die volle Bühne. Auswahl < 2%
+    Breite oder < 2 enthaltene Schritte = ignoriert (als Klick gewertet, kein versehentliches Zoomen).
+  - Der gezoomte Ausschnitt ist in der Leiste als Accent-Fenster hervorgehoben (enthaltene Punkte
+    Accent, äußere grau). Caption „Ausschnitt {span} · {N} Schritte" (Accent) + Button
+    „Zoom zurücksetzen". START/JETZT-Badges + der gefüllte Accent-„Jetzt"-Dot hängen jetzt am
+    **globalen** Start/Jetzt (globaler Index), nicht am Ausschnitt-Rand — im Zoom fehlen sie
+    ehrlich, wenn die Endpunkte nicht im Ausschnitt liegen. Detail-Panel-Default folgt dem
+    Ausschnitt-Ende. `computeTimelineLayout` als wiederverwendbare Funktion herausgezogen (statt
+    inline-useMemo), damit sie auf den Ausschnitt anwendbar ist. Zoom wird beim Thread-Wechsel
+    zurückgesetzt. i18n de+en (timelineZoomHint/timelineZoomReset/timelineZoomedSpan). SW-Cache v24→v25.
+    Kein Schema/Backend. DESIGN-LOCK-konform (flach, gesperrte Accent-Palette, kein Glow, keine AI-Symbolik).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/threads/sim-t-messe` → HTTP 200.
+  Abnahme mit Screenshot-Tool + Playwright-Drag auf app.aikydo.de (Sim-Tenant, Line „sim: Messestand
+  Halle 7 beschaffen", 4 Schritte 9.–18. Juli): (1) Base — Leiste „Zeitraum markieren zum Zoomen" mit
+  4 Punkten unter der Achse; (2) Desktop-Drag über die mittleren 13.–16. Juli → Haupt-Timeline zeigt
+  nur noch diese 2 Schritte gedehnt auf die volle Bühne, Leiste hebt das Fenster + die 2 Punkte accent
+  hervor, Caption „Ausschnitt 3 Tage · 2 Schritte", START/JETZT korrekt verschwunden; (3) „Zoom
+  zurücksetzen" → volle Line zurück („Zeitspanne 9 Tage" wieder da, per Assertion verifiziert);
+  (4) Mobil 390 — Drag zoomt ebenso, Leiste + Timeline + Panels stapeln sauber, kein Layout-Bruch.
+  Nur bekannte/ignorierbare 401/403.
+  - Screenshot (Base, Brush-Leiste): .autopilot/shots/2026-07-19_timeline-zoom-base.png
+  - Screenshot (gezoomt Desktop): .autopilot/shots/2026-07-19_timeline-zoom.png
+  - Screenshot (gezoomt Mobil 390): .autopilot/shots/2026-07-19_timeline-zoom-390.png
+- Commit: 8c13fd69 feat(threads): Bereich-Zoom der horizontalen Timeline (Backlog #3, Teilschritt 3)
+- Nächster Schritt: Backlog #3 ist damit komplett (horizontal + dynamische Skala + Bereich-Zoom).
+  Nächste schemafreie Kandidaten: „WER" im Momentum-Cockpit (/mindmap) andeuten, oder Momentum-Ladenhüter
+  (#5, Variante B — beachten: volle Fassung braucht die Question-Sektion #7, die noch nicht existiert).
+  Offene Rückmeldungen (Dateien-Panel, Projekt-Zuordnung, Absender-Vorschlag) warten auf Michaels Entscheidung.
+
+### 2026-07-19 — Lines-Übersicht: Ranking-Umschalter (Interview Punkt 3 — „30–100 Lines beherrschen")
+- Richtung: Interview Punkt 3 verlangt Kategorien/Rankings der Lines-Übersicht — „Top gepflegt, Top
+  vernachlässigt, neueste, älteste — simuliere sinnvolle Ordnung als würdest du selbst die Firma führen".
+  Bislang gab es NUR eine feste Sortierung (liegengeblieben zuerst). Für 30–100 Lines braucht man den
+  Blickwinkel-Wechsel.
+- Gebaut (nur Frontend, `/threads`): Ein segmentierter Umschalter (rechts in der Zähler-Zeile) mit vier
+  Rankings: **Vernachlässigt** (Default = bisheriges Verhalten: liegengeblieben zuerst, dann impact-stärkste,
+  dann Momentum) · **Gepflegt** (laufende/frischeste zuerst, impact als Tiebreak) · **Neueste** (createdAt
+  absteigend) · **Älteste** (createdAt aufsteigend). Kein Regress: „Vernachlässigt" bleibt der Startzustand
+  und die Momentum-Farbcodierung (Links-Akzent per inset box-shadow) bleibt in JEDER Sortierung je Zeile
+  erhalten — man ordnet die Firma neu, sieht aber weiter auf einen Blick, was rot/grün ist. Schemafrei
+  (rein clientseitige Sortierung der ohnehin gelieferten Felder). i18n de+en (sortStalled/Cared/Newest/
+  Oldest). SW-Cache v25→v26. DESIGN-LOCK-konform (flach, gesperrte Accent-Palette, Pill-Buttons wie sonst).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/threads` → HTTP 200. Abnahme auf
+  app.aikydo.de (Sim-Tenant, 8 Lines) mit Screenshot-Tool + Playwright: alle vier Tabs erzeugen sichtbar
+  UNTERSCHIEDLICHE Top-3 (per Assertion): Vernachlässigt = Foerdermittel/Imagefilm/Employer-Branding;
+  Neueste = Messestand/Kampagnen-Q3/Website; Älteste = Rohbau/Fuhrpark/Employer-Branding; Gepflegt =
+  Messestand/Rohbau/Kampagnen-Q3 (grüne „Läuft" oben). Aktiver Tab in Accent, Momentum-Akzent/Badges/
+  Contributor-Avatare intakt. Mobil 390: Tabs wrappen sauber auf eine eigene Zeile (alle vier passen),
+  kein Layout-Bruch. Nur bekannte/ignorierbare 401/403.
+  - Screenshot (Vernachlässigt/Default): .autopilot/shots/2026-07-19_lines-ranking-stalled.png
+  - Screenshot (Gepflegt): .autopilot/shots/2026-07-19_lines-ranking-cared.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_lines-ranking-390.png
+- Commit: 69d435db feat(threads): Ranking-Umschalter auf der Lines-Übersicht (Interview Punkt 3)
+- Nächster Schritt: Interview Punkt 3 ist damit rund (worum geht's/Stand + WER bearbeitet + Pflege-Status +
+  Rankings). Nächste schemafreie Kandidaten: „WER" im Momentum-Cockpit (/mindmap), Momentum-Ladenhüter
+  (#5, Variante B — volle Fassung braucht Question-Sektion #7). Offene Rückmeldungen unverändert offen.
+
+### 2026-07-19 — Momentum: Ladenhüter — liegengebliebene Eingangs-Kacheln (Backlog #5, Variante B, Typ 3)
+- Richtung: Interview Punkt 8 (Ladenhüter) + die in ORCHESTRATOR entschiedene **Variante B** — Momentum
+  ist die ehrliche Heimat der Ladenhüter, die „vernachlässigt"-Seite umfasst alle drei Typen:
+  liegengebliebene Lines, unbeantwortete Ja/Nein-Fragen, überalterte ungefischte Eingangs-Kacheln.
+  Typ 1 (Lines) steckt bereits im Cockpit (rote Seite); Typ 3 (aged Eingangs-Kacheln) war im Momentum
+  bislang KOMPLETT UNSICHTBAR — genau die Lücke, die eine ungefischte, alt gewordene Kachel unsichtbar
+  liegen lässt. Diesen Typ jetzt sichtbar gemacht (Typ 2 Ja/Nein-Fragen folgt mit der Question-Sektion #7).
+- Gebaut (nur Frontend, `/mindmap`): Unter dem Momentum-Cockpit eine **flache Consult-Fläche** „Im Eingang
+  liegengeblieben" — die ungefischten Eingangs-Kacheln, die seit ≥ 2 Tagen im Pool liegen (älteste zuerst,
+  Top 5). Je Zeile: haiku-artige Kurzvorschau (Präfix „sim:" abgeschnitten) + Alter („vor N Tagen"). Links
+  ein **Alters-Akzent** (matt-rot, je älter desto kräftiger, inset box-shadow) — bewusst KEIN Glow, damit
+  die Fläche dem glühenden Cockpit klar untergeordnet bleibt. Klick auf Zeile ODER „Ganzen Eingang öffnen →"
+  navigiert zum Eingang. **Kein Interrupt, keine zweite Queue** neben dem Eingang (Michaels
+  Kannibalisierungs-Falle bewusst vermieden — reine Reflexions-/Consult-Fläche, die man aufsucht). Nur
+  gerendert, wenn es echte Ladenhüter gibt (sonst ehrlich leer/versteckt). Schemafrei (`GET /raw-inputs/inbox`,
+  bereits vorhanden). i18n de+en (stalledInboxTitle/Hint/Age/All). SW-Cache v26→v27. DESIGN-LOCK-konform.
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/mindmap` → HTTP 200. Abnahme auf
+  app.aikydo.de (Sim-Tenant, 5 offene Zurufe 1,1–3,1 Tage alt): Desktop 1440 — Cockpit unverändert (Glow,
+  Gesamt −85), darunter die flache Ladenhüter-Fläche mit den beiden ≥2-Tage-Kacheln (Rollup-Banner „vor 3
+  Tagen" kräftiger rot, Whiteboard-Foto „vor 2 Tagen"), die 1,1–1,3-Tage-Kacheln erscheinen korrekt NICHT.
+  Klick auf eine Zeile → `https://app.aikydo.de/eingang` (per Playwright verifiziert). Mobil 390 — Titel/Hinweis/
+  Link wrappen sauber, Zeilen mit Ellipsis + rechtsbündigem Alter, kein Layout-Bruch. Nur bekannte 401/403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_momentum-ladenhueter.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_momentum-ladenhueter-390.png
+- Commit: (dieser Lauf) feat(momentum): Ladenhüter — liegengebliebene Eingangs-Kacheln (Variante B, Typ 3)
+- Nächster Schritt: Ladenhüter Typ 2 (unbeantwortete Ja/Nein-Fragen) fehlt noch — hängt an der
+  Question-Sektion (#7), die es noch nicht gibt (wahrscheinlich neues Modell → Schema-Tabu → Rückmeldung).
+  Sonst „WER" im Momentum-Cockpit oder Backlog-Feinschliff. Offene Rückmeldungen (Dateien-Panel,
+  Projekt-Zuordnung, Absender-Vorschlag, Question-Sektion) warten auf Michaels Entscheidung.
