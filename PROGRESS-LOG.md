@@ -294,3 +294,39 @@ Format je Eintrag:
 - Nächster Schritt: Momentum-Cockpit weiter schärfen — z.B. Klick auf die Zahl/Achse als
   Sortier-Sekundärsignal, oder Hover-Vorschau (Stand-Summary) je Zeile. Alternativ „Line wählen …"-
   Select im Eingang visuell klarer vom KI-Vorschlag trennen.
+
+### 2026-07-19 — Eingang: beim Rausfischen den nächsten Schritt festhalten (GTD, Backlog #1)
+- Richtung: ORCHESTRATOR „Aktuelle Richtung" / Interview-Backlog Punkt 1. Wer eine Kachel in
+  eine Line fischt, soll direkt den beabsichtigten nächsten Schritt festhalten → GTD-Kern
+  („immer der nächste kleine Schritt"). Bisher endete das Rausfischen still mit dem
+  Bestätigungs-Strip; die Line startete ohne definierten nächsten Schritt.
+- Gebaut (nur Frontend, `/eingang`): Nach dem Rausfischen IN EINE LINE (Zuordnen bester Treffer /
+  „Line wählen"-Zuordnen / neue Line) zeigt der Bestätigungs-Strip jetzt einen kompakten
+  GTD-Moment: Eyebrow „NÄCHSTER SCHRITT" (Accent) + Eingabefeld „Was passiert als Nächstes?"
+  (autofokus) + „Festhalten". Enter speichert ebenfalls. Der eingegebene Schritt landet als
+  `nextStep` der Ziel-Line — via bestehendem `PATCH /threads/:id`, KEIN Schema-/Backend-Eingriff.
+  Dezenter GTD-Hinweis darunter: „Wirkt es wie unter 2 Minuten? Dann erledige es am besten
+  gleich." Rechts „Überspringen" — komplett optional, kein Zwang (leeres Feld = überspringen).
+  Nach dem Festhalten kurze Bestätigung „Nächster Schritt festgehalten.", dann still entfernt.
+  Verwerfen (kein Ziel-Thread) behält den bisherigen 6-Sek-Strip ohne Capture. „Rückgängig"
+  bleibt erhalten und setzt auch das Capture-Feld zurück. i18n de+en (captureNextStep/
+  captureNextStepPlaceholder/captureHold/skipStep/twoMinHint/nextStepSaved). SW-Cache v17→v18.
+  DESIGN-LOCK-konform (Accent #5F74D1, flach, kein Glow, keine AI-Symbolik).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/eingang` → HTTP 200.
+  Abnahme mit echtem Klick-Flow (Playwright, Sim-Tenant, 5 Zurufe): Best-Treffer-Pille des
+  Zoll-Zurufs geklickt → Capture-Panel erscheint über der Karte („✓ → Zugeordnet zu «sim:
+  Messestand Halle 7 beschaffen»" + Rückgängig, NÄCHSTER SCHRITT, Eingabe, GTD-Hinweis,
+  Überspringen). Text eingetippt + „Festhalten" → „Nächster Schritt festgehalten.". API-Gegenprobe:
+  `sim-t-messe.nextStep` = „Ursprungszeugnis beim Lieferanten anfordern" (persistiert), Inbox 5→4.
+  Mobil 390: Panel stapelt sauber (Feld voll breit, Button darunter), keine Kollision. Nur
+  bekannte/ignorierbare 401/403.
+  - Screenshot (Capture-Panel): .autopilot/shots/2026-07-19_eingang-nextstep-capture.png
+  - Screenshot (festgehalten): .autopilot/shots/2026-07-19_eingang-nextstep-saved.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-19_eingang-nextstep-capture-390.png
+- Sim sauber gehalten: Test-Zuruf per `restore` zurück in den Eingang (Inbox wieder 5),
+  `sim-t-messe.nextStep` wieder geleert — Sim-Tenant im Ausgangszustand.
+- Commit: (dieser Lauf) feat(eingang): beim Rausfischen den nächsten Schritt festhalten (GTD)
+- Nächster Schritt: Interview-Backlog Punkt 2 — Absender-Vorschlag „wer könnte übernehmen"
+  (kleines optionales Feld beim Einwerfen; Vorschlag nie Zwang). Zuerst prüfen, ob ein Feld
+  am RawInput nötig ist → falls Schema-Eingriff, als Rückmeldung in ORCHESTRATOR ablegen. Sonst
+  Backlog Punkt 3 (horizontale Timeline) in Teilschritten oder Momentum-Ladenhüter (Punkt 5).
