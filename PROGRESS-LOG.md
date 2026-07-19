@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T16:22Z · Commit 1fb043c4 · Lauf-Nr. 14 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T18:08Z · Commit e6b44302 · Lauf-Nr. 15 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # PROGRESS-LOG — Autopilot-Verlauf
 
@@ -712,3 +712,34 @@ Format je Eintrag:
 - Nächster Schritt: Momentum-Skalierung auf viele Lines (Top-N beide Richtungen bei 30–100 Lines) ist der
   logische nächste Punkt 5-Schritt, aber mit nur 8 Sim-Lines nicht sauber per Screenshot abnehmbar (Top-10-
   Deckel greift nicht) → besser mit mehr Sim-Daten oder Michaels OK. Blockiert bleiben #7/#6/#4/#2 (Schema).
+
+### 2026-07-19 — Lines-Übersicht: Suche/Volltextfilter (Interview Punkt 3 — „30–100 Lines beherrschen")
+- Befund: Interview Punkt 3 verlangt ausdrücklich, 30–100 Lines zu beherrschen. Die Rankings (Vernachlässigt/
+  Gepflegt/Neueste/Älteste) waren gebaut, aber es fehlte die naheliegendste Fähigkeit, um eine bestimmte Line
+  unter vielen zu FINDEN: eine Suche. `/chats` hat sie längst (etabliertes Muster, `searchQuery`-State +
+  Lupen-Input + gefilterte Liste), `/threads` hatte KEINE — genau die Lücke, die bei 30–100 Lines beißt.
+  Passt exakt zur aktuellen Richtung „Muster aus chats übernehmen, nicht neu erfinden".
+- Gebaut (nur Frontend, `/threads`): Ein Such-Input im chats-Stil (Lupe links, Clear-„X" rechts sobald Text da
+  ist) direkt unter dem Header, immer sichtbar solange Lines existieren. Volltextfilter clientseitig über
+  **Titel + Stand (`summary`) + nächster Schritt (`nextStep`)** — matcht also nicht nur den Namen, sondern auch
+  worum es geht/wo es steht. Zähler (Header-Pille + Zeile) spiegeln die Trefferzahl. Ranking-Umschalter und
+  Momentum-Farbcodierung (Links-Akzent, Badges, Contributor-Avatare) bleiben je Zeile intakt — man filtert die
+  Firma ein, sieht aber weiter auf einen Blick rot/grün. Eigener No-Treffer-Zustand („Keine Line gefunden" +
+  Query-Echo), der die Suchbox bedienbar lässt (kein Sackgassen-Empty). Schemafrei (rein clientseitig auf
+  ohnehin gelieferten Feldern). i18n de+en (searchPlaceholder/noLinesFound/noResultsFor). SW-Cache v30→v31.
+  DESIGN-LOCK-konform (flach, gesperrte Palette, kein Glow, keine AI-Symbolik).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/threads` → HTTP 200. Abnahme auf
+  app.aikydo.de (Sim-Tenant, 8 Lines) mit Screenshot-Tool + Playwright-Tippen: (1) Basis — Suchbox über der
+  Zähler-/Sortier-Zeile, alle 8 Zeilen samt Momentum-Akzent intakt; (2) Query „mess" → exakt 1 Treffer
+  („sim: Messestand Halle 7 beschaffen", per Assertion der sichtbaren Titel), Header „1 offen", Clear-X sichtbar,
+  „Läuft"-Badge/Akzent erhalten; (3) Query „zzz" → No-Treffer-Zustand „Keine Line gefunden · Kein Treffer für
+  „zzz"", Suchbox bleibt bedienbar; (4) Mobil 390 — Suchbox volle Breite mit Clear-X, Sortier-Tabs wrappen auf
+  eigene Zeile, gefilterte Zeile ohne Layout-Bruch. Nur bekannte/ignorierbare 401 (new-users-count) / 403.
+  - Screenshot (gefiltert „mess"): .autopilot/shots/2026-07-19_lines-suche.png
+  - Screenshot (No-Treffer „zzz"): .autopilot/shots/2026-07-19_lines-suche-leer.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_lines-suche-390.png
+- Commit: f62a4d09 feat(threads): Suche auf der Lines-Übersicht (Interview Punkt 3 – 30–100 Lines beherrschen)
+- Nächster Schritt: Interview Punkt 3 („30–100 Lines beherrschen") ist damit rund (Rankings + Suche + Momentum-
+  Sicht je Zeile). Weiterhin blockiert auf Michaels Schema-/Konzept-Entscheidung: #7 Question-Sektion (größter
+  Hebel, schaltet Ladenhüter-Typ 2 + #6 frei), #6 Benachrichtigung, #4 Dateien-Panel, #2 Absender-Vorschlag.
+  Schemafreie Rest-Kandidaten werden dünn (Momentum-Top-N braucht mehr Sim-Lines).

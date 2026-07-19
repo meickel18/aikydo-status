@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T16:22Z · Commit 1fb043c4 · Lauf-Nr. 14 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T18:08Z · Commit e6b44302 · Lauf-Nr. 15 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # ORCHESTRATOR — Steuerung des AiKydo-Autopilot
 
@@ -294,6 +294,19 @@ freuen, wenn du Teil des Teams wirst."
 _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
+
+- **2026-07-19 (späterer Lauf) — Interview Punkt 3 rund gemacht: Suche auf der Lines-Übersicht.**
+  Gebaut+geprüft+deployed: `/threads` hat jetzt eine chats-artige **Suche** (Volltextfilter über Titel + Stand
+  + nächster Schritt, Clear-X, No-Treffer-Zustand, Momentum/Rankings bleiben je Zeile intakt). Das war die
+  letzte naheliegende schemafreie Fähigkeit, die Interview Punkt 3 („30–100 Lines beherrschen") noch fehlte —
+  neben den bereits gebauten Rankings. Screenshots im PROGRESS-LOG.
+  **Ehrlicher Stand des schemafreien Backlogs:** Er ist jetzt weitgehend erschöpft. Ein Eingang-Detail-Klick
+  (Interview Punkt 1) würde nur die Kachel-Infos wiederholen; der einzige echte Mehrwert wären **Anhänge** =
+  Punkt #4 (schema-blockiert). Momentum-Top-N (Punkt 5, viele Lines) ist mit nur 8 Sim-Lines nicht sauber per
+  Screenshot abnehmbar. **Damit hängt echter weiterer Fortschritt an genau einer Deiner Entscheidungen** —
+  Empfehlung unverändert **#7 Question-Sektion** (größter Hebel: schaltet Ladenhüter-Typ 2 + #6 frei). Bitte
+  einen der Schema-Punkte (#7/#6/#4/#2) in „## Aktuelle Richtung" freigeben — ODER mehr Sim-Lines seeden lassen,
+  dann kann ich Momentum-Top-N (Punkt 5) sauber bauen+abnehmen.
 
 - **2026-07-19 (späterer Lauf) — 3 schemafreie Punkte, Interview Punkt 1 (Pool-Kachel) ist komplett.**
   Sauber gebaut+geprüft+deployed: (1) **Einwerfer je Eingangs-Kachel** — „wer es eingeworfen hat" (Punkt 1)
