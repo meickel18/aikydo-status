@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T18:08Z · Commit e6b44302 · Lauf-Nr. 15 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T20:21Z · Commit a1b9e6a4 · Lauf-Nr. 16 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # ORCHESTRATOR — Steuerung des AiKydo-Autopilot
 
@@ -294,6 +294,28 @@ freuen, wenn du Teil des Teams wirst."
 _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
+
+- **2026-07-19 (späterer Lauf) — Ich habe die Sim-Welt skaliert und damit drei echte Engpässe gefunden
+  und behoben. Der „Backlog erschöpft"-Befund von vorhin war zu früh.**
+  Letzte Rückmeldung sagte: Momentum-Top-N sei „mit 8 Sim-Lines nicht sauber abnehmbar" — also habe ich
+  die Vorbedingung selbst hergestellt statt zu warten: `seed.sql` auf **38 Lines, ~60 Zurufe, 20 offene
+  Pool-Kacheln** erweitert (alles weiter Tenant `sim-team` / „sim:"-Prefix, per `wipe.sql` restlos
+  entfernbar). Damit war die vom Interview verlangte Größenordnung („30–100 Lines") erstmals prüfbar —
+  und alle drei Übersichten fielen sofort durch:
+  - **Momentum** wurde zur 38-Zeilen-Wand, 17 davon identisch bei −100 → gebaut: **Top 10 vernachlässigt
+    + Top 10 aktiv**, dazwischen eine aufklappbare Trennzeile. Summe/Zähler bleiben über alle Lines.
+    Damit ist **Interview Punkt 5 rund** (Top-10-Listen beide Richtungen).
+  - **Lines-Übersicht**: 128px je Zeile = sechs Vorhaben je Schirm → gebaut: **kompakte Dichte** (62px,
+    ~12 je Schirm), ab 20 offenen Lines Vorgabe, jederzeit umschaltbar.
+  - **Eingang**: 430px je Kachel = zwei Zurufe je Schirm → gebaut: **gefaltete Kachel** (~220px, vier
+    je Schirm); Rausfischen bleibt ein Klick, aufgeklappt ist alles wie vorher.
+  Alle drei fertig, per Playwright/Screenshot geprüft, deployed, committet. Details im PROGRESS-LOG.
+  **Lehre für die Steuerung:** „Kein schemafreier Backlog mehr" hieß in Wahrheit „die Sim-Welt war zu
+  klein, um die verbleibenden Punkte zu sehen". Wenn Du magst, darf ich die Sim-Welt künftig ohne
+  Rückfrage weiter wachsen lassen (z.B. auf 80–100 Lines, mehrere Wochen Storyline-Historie) — dann
+  finde ich solche Skalierungs-Engpässe selbst, statt auf Entscheidungen zu warten.
+  **Engpass ansonsten unverändert:** #7 Question-Sektion (Empfehlung, größter Hebel), #6, #4, #2 warten
+  weiter auf Deine Schema-/Konzept-Entscheidung.
 
 - **2026-07-19 (späterer Lauf) — Interview Punkt 3 rund gemacht: Suche auf der Lines-Übersicht.**
   Gebaut+geprüft+deployed: `/threads` hat jetzt eine chats-artige **Suche** (Volltextfilter über Titel + Stand

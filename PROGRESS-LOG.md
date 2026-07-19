@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T18:08Z · Commit e6b44302 · Lauf-Nr. 15 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T20:21Z · Commit a1b9e6a4 · Lauf-Nr. 16 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # PROGRESS-LOG — Autopilot-Verlauf
 
@@ -743,3 +743,77 @@ Format je Eintrag:
   Sicht je Zeile). Weiterhin blockiert auf Michaels Schema-/Konzept-Entscheidung: #7 Question-Sektion (größter
   Hebel, schaltet Ladenhüter-Typ 2 + #6 frei), #6 Benachrichtigung, #4 Dateien-Panel, #2 Absender-Vorschlag.
   Schemafreie Rest-Kandidaten werden dünn (Momentum-Top-N braucht mehr Sim-Lines).
+
+### 2026-07-19 — Skalierung: Sim-Welt auf 38 Lines / 20 Pool-Kacheln, dann drei Engpässe behoben
+- Ausgangslage: Der schemafreie Backlog galt als erschöpft, weil die verbleibenden Interview-Punkte
+  (Momentum Top-N, Punkt 5) mit nur 8 Sim-Lines nicht sauber per Screenshot abnehmbar waren. Statt
+  auf Michaels Entscheidung zu warten, wurde die naheliegende Vorbedingung selbst hergestellt: die
+  Sim-Welt auf die vom Interview verlangte Größenordnung gebracht (Punkt 3: „30–100 Lines beherrschen",
+  Punkt 9: „Desktop = die große Übersicht"). Das legte sofort drei echte Engpässe offen.
+- Sim-Daten (schemafrei, alles Tenant `sim-team` / „sim:"-Prefix, per `wipe.sql` restlos entfernbar):
+  `seed.sql` um 30 Lines (`sim-t-x01..x30`, realistischer Handwerks-/Werkstatt-Alltag mit `summary`,
+  `nextStep`, gestaffelter `lastActivity` über 0–30 Tage) + 38 zugehörige Zurufe + 15 weitere
+  Pool-Kacheln erweitert → **38 Lines, ~60 Zurufe, 20 offene Pool-Kacheln**. Fix am Seed: Tenant/User
+  werden nicht mehr gelöscht, sondern geupsertet — die App hängt eine `Subscription` an den Tenant,
+  der Delete lief in einen FK-Fehler (Transaktion rollte sauber zurück, keine Datenverluste).
+
+**(1) Momentum-Cockpit: Top-10 beide Richtungen statt 38-Zeilen-Wand (Interview Punkt 5)**
+- Befund am Screenshot: Das Cockpit rendert jede Line als eigene Zeile — bei 38 Lines eine endlose
+  Wand, davon 17 identisch bei −100 und damit nicht unterscheidbar. Die „auf einen Blick"-Qualität,
+  der ganze Zweck der Karte, war weg. Interview Punkt 5 verlangt ausdrücklich „Top-10-Listen beide
+  Richtungen".
+- Gebaut (nur Frontend, `/mindmap`): Ab 2×TOP_N Lines zeigt das Cockpit nur die Extreme — **Top 10
+  vernachlässigt oben, Top 10 aktiv unten**, dazwischen eine ruhige Trennzeile „18 ruhige Lines
+  dazwischen — anzeigen" (aufklappbar, per „Nur die Extreme zeigen" wieder zuklappbar). Summe und
+  die VERLIERT/GEWINNT-Zähler bleiben bewusst über ALLE Lines — gekappt wird die Darstellung, nicht
+  die Wahrheit. Kein Backend/Schema. SW-Cache v31→v32.
+- Geprüft: tsc sauber, Deploy nur Prod. Cockpit passt mit 38 Lines wieder auf einen Schirm; Auf-/
+  Zuklappen per Playwright verifiziert (20 → 38 → 20 Zeilen); Mobil 390 ohne Layout-Bruch.
+  - Screenshot: .autopilot/shots/2026-07-19_momentum-topn.png
+  - Screenshot (aufgeklappt): .autopilot/shots/2026-07-19_momentum-topn-expanded.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_momentum-topn-390.png
+- Commit: feat(momentum): Top-10 beide Richtungen statt Zeilen-Wand (Interview Punkt 5)
+
+**(2) Lines-Übersicht: kompakte Dichte (Interview Punkt 3 + 9)**
+- Befund: Die ausführliche Zeile (Titel + Stand + Meta + nächster Schritt) ist 128px hoch — auf einem
+  1440er Schirm passten **sechs** Vorhaben. Bei 30–100 Lines wird die Übersicht damit zur Scroll-Strecke,
+  obwohl Desktop laut Punkt 9 „die große Übersicht" sein soll.
+- Gebaut (nur Frontend, `/threads`): Kompakte Dichte mit **62px/Zeile (~12 Lines je Schirm)** — Titel +
+  Meta bleiben stehen, Stand und nächster Schritt wandern in den Titel-Tooltip. Momentum-Akzent, Badges,
+  Bearbeiter-Avatare, Rankings und Suche unverändert. **Ab 20 offenen Lines ist kompakt die Vorgabe**,
+  darunter bleibt es ausführlich; der Umschalter neben den Rankings kehrt das jederzeit um. Die Vorgabe
+  hängt an der Gesamtzahl, nicht an der Trefferzahl — sonst würde jede Suche die Dichte umspringen lassen.
+  i18n de+en (densityCompact/densityDetailed). SW-Cache v32→v33.
+- Geprüft: tsc sauber, Deploy nur Prod. Zeilenhöhe per Playwright gemessen: 61,75px kompakt / 128,45px
+  ausführlich / zurück auf 61,75px; die Stand-Zeile erscheint im ausführlichen Modus wieder. Suche +
+  Ranking bleiben im kompakten Modus korrekt (Query „angebot" → 5 Treffer, Dichte springt nicht,
+  „Gepflegt" sortiert weiter richtig). Mobil 390 ohne Layout-Bruch.
+  - Screenshot (kompakt): .autopilot/shots/2026-07-19_lines-kompakt.png
+  - Screenshot (ausführlich): .autopilot/shots/2026-07-19_lines-ausfuehrlich.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_lines-kompakt-390.png
+- Commit: feat(threads): kompakte Dichte auf der Lines-Uebersicht (Interview Punkt 3 + 9)
+
+**(3) Eingang: Pool-Kachel gefaltet (Interview Punkt 1)**
+- Befund: Derselbe Test für den Eingang (20 statt 5 Zurufe): jede Kachel ~430px hoch (Vorschlags-Block
+  + „Line wählen" + Zuordnen/+Neue Line + „Übernommen von") — **zwei Zurufe je Schirm**. Interview
+  Punkt 1 will Kacheln mit den Merkmalen auf einen Blick und das Detail erst auf Klick.
+  - Screenshot (Zustand vorher): .autopilot/shots/2026-07-19_eingang-vorher-20-kacheln.png
+- Gebaut (nur Frontend, `/eingang`): Die Kachel zeigt gefaltet Medium + Zeit + Einwerfer + Text +
+  **Best-Treffer-Pille** + eine schlanke Fußzeile (Mehr Optionen / Verwerfen) = **~220px, vier Zurufe
+  je Schirm**. Das Rausfischen bleibt **ein Klick**, weil die Best-Treffer-Pille sichtbar bleibt — die
+  Kern-Metapher wird nicht angetastet. Aufgeklappt ist die Karte exakt wie vorher (weitere Vorschläge,
+  „Line wählen", Zuordnen, + Neue Line, „Übernommen von"). i18n de+en (cardMore/cardLess). SW-Cache v33→v35.
+- Geprüft: tsc sauber, Deploy nur Prod. Kartenhöhe per Playwright gemessen (221,5px gefaltet / 485,3px
+  aufgeklappt / zurück). Rausfisch-Flow intakt: Klick auf die Best-Treffer-Pille öffnet das
+  nextStep-Capture-Panel, „Rückgängig" stellt den Zuruf wieder her (20 offen — Sim-Tenant sauber
+  hinterlassen). Mobil 390 ohne Layout-Bruch. Nur bekannte 401/403.
+  - Screenshot (gefaltet): .autopilot/shots/2026-07-19_eingang-kompakt.png
+  - Screenshot (aufgeklappt): .autopilot/shots/2026-07-19_eingang-aufgeklappt.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_eingang-kompakt-390.png
+- Commit: feat(eingang): Pool-Kachel gefaltet — Zuordnungs-Maschinerie erst auf Klick
+
+- Nächster Schritt: Die drei großen Übersichten (Momentum, Lines, Eingang) halten jetzt die vom
+  Interview verlangte Größenordnung aus. Damit ist Interview Punkt 5 rund und Punkt 3/Punkt 1 auf
+  Skalierung geprüft. Weiterhin blockiert auf Michaels Schema-/Konzept-Entscheidung: **#7
+  Question-Sektion** (größter Hebel — schaltet Ladenhüter-Typ 2 + #6 frei), **#6 Benachrichtigung**,
+  **#4 Dateien-Panel**, **#2 Absender-Vorschlag**. Siehe ORCHESTRATOR „Rückmeldungen".
