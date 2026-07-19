@@ -1,3 +1,5 @@
+> **Stand:** 2026-07-19T08:25Z · Commit 897569e8 · Lauf-Nr. 10 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+
 # PROGRESS-LOG — Autopilot-Verlauf
 
 Chronologisch, neueste Einträge **unten anhängen**. Je Lauf: Datum, was gebaut,

@@ -1,3 +1,5 @@
+> **Stand:** 2026-07-19T08:25Z · Commit 897569e8 · Lauf-Nr. 10 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+
 # ORCHESTRATOR — Steuerung des AiKydo-Autopilot
 
 Diese Datei hat **Vorrang vor allem anderen**. Der Autopilot liest sie zu Beginn
