@@ -330,3 +330,37 @@ Format je Eintrag:
   (kleines optionales Feld beim Einwerfen; Vorschlag nie Zwang). Zuerst prüfen, ob ein Feld
   am RawInput nötig ist → falls Schema-Eingriff, als Rückmeldung in ORCHESTRATOR ablegen. Sonst
   Backlog Punkt 3 (horizontale Timeline) in Teilschritten oder Momentum-Ladenhüter (Punkt 5).
+
+### 2026-07-19 — Line-Detail: horizontale Storyline-Timeline (Backlog #3, Teilschritt 1)
+- Befund zu Backlog #2 (Absender-Vorschlag „wer könnte übernehmen"): `RawInput` hat bereits
+  ein `assignedToUserId` + `assignee` — das ist aber „wer ÜBERNIMMT" (Zuweisung), nicht der
+  optionale Absender-VORSCHLAG aus dem Interview. Beides zu vermischen oder ein neues Feld
+  anzulegen wäre ein Schema-/Konzept-Eingriff, und es fehlt eine Einwerf-UI im Portal (Zurufe
+  entstehen serverseitig, `profile.service`). Damit ist #2 ein „erst-Rückmeldung"-Fall (kein
+  Alleingang) → deshalb stattdessen der klar interview-verlangte, schemafreie Punkt #3.
+- Gebaut (nur Frontend, `/threads/[id]`): Die Storyline im Line-Detail ist jetzt eine ECHTE
+  HORIZONTALE Timeline (Interview Punkt 4) statt der vertikalen Schiene. Start links →
+  Jetzt rechts auf einer waagerechten Achse; je Knoten oben das absolute Datum, ein Dot auf
+  der Achse (neuester gefüllt Accent #5F74D1 = JETZT, frühere hohl), darunter Medium-Icon +
+  Label und ein 2-Zeilen-Kurztext. Anker-Badges START/JETZT. Auswahl je Schritt (Hover am
+  Desktop / Tap am Handy) hebt den Dot per Accent-Ring hervor und zeigt den VOLLTEXT in einem
+  Detail-Panel direkt darunter (Standard: neuester Schritt) — „Hover → Details" aus dem
+  Interview, aber klippfrei (kein Popover im scroll-Container) und mobil-tauglich. Die Achse
+  ist horizontal scrollbar (overflow-x auto), bricht also nie das Layout. Kein Schema/Backend.
+  DESIGN-LOCK-konform (gesperrte Palette, flach, kein Glow, keine AI-Symbolik). SW-Cache v18→v19.
+  Bewusst NOCH offen (weitere Teilschritte): dynamische Zeitskala (Tage/Wochen/Jahre, proportionale
+  Abstände) und „Bereich markieren → zoomen".
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/threads/sim-t-messe`
+  → HTTP 200. Abnahme mit Screenshot-Tool auf app.aikydo.de (Sim-Tenant, Line „sim: Messestand
+  Halle 7 beschaffen", 4 Schritte): Desktop 1440 zeigt die Achse START 9.Juli (Notiz) → 13.Juli
+  (E-Mail) → 16.Juli (Sprachnotiz) → JETZT 18.Juli (Notiz, Accent-Dot), Datum/Medium/Kurztext je
+  Knoten, Detail-Panel darunter mit Volltext des JETZT-Schritts. Mobil 390: Achse scrollt
+  horizontal (frühe Schritte sichtbar, spätere per Swipe), kein Layout-Bruch, Panel voll lesbar.
+  Nur bekannte/ignorierbare 401/403.
+  - Screenshot: .autopilot/shots/2026-07-19_storyline-horizontal.png
+  - Screenshot (Mobil): .autopilot/shots/2026-07-19_storyline-horizontal-390.png
+- Commit: 14c95f17 feat(threads): horizontale Storyline-Timeline im Line-Detail (Teilschritt 1)
+- Nächster Schritt: Backlog #3, Teilschritt 2 — dynamische Zeitskala (proportionale Abstände je
+  echtem Zeit-Delta, Skalenwechsel Tage/Wochen/Jahre je nach Line-Alter). Danach Teilschritt 3
+  „Bereich markieren → zoomen". Alternativ Backlog #2 (Absender-Vorschlag) als Rückmeldung in
+  ORCHESTRATOR ablegen und Michaels Entscheidung abwarten.

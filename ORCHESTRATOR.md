@@ -228,6 +228,21 @@ _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
 
+- **2026-07-19 — Backlog #3 gebaut (horizontale Timeline, Teilschritt 1) + #2 braucht Entscheidung.**
+  Gebaut: die Line-Detail-Storyline ist jetzt eine echte HORIZONTALE Timeline (Interview Punkt 4) —
+  Start links → Jetzt rechts, Datum/Medium/Kurztext je Knoten, Auswahl → Volltext-Panel darunter.
+  Dynamische Zeitskala + Bereich-Zoom folgen als Teilschritte 2/3. Screenshots im PROGRESS-LOG.
+  **Weggabelung Backlog #2 (Absender-Vorschlag „wer könnte übernehmen"):** `RawInput` hat schon
+  `assignedToUserId`/`assignee`, aber das ist „wer ÜBERNIMMT" (Zuweisung nach dem Rausfischen), NICHT
+  der optionale VORSCHLAG des Absenders beim Einwerfen. Außerdem entstehen Zurufe serverseitig
+  (`profile.service`) — es gibt keine Einwerf-UI im Portal, an die ein Vorschlagsfeld andocken könnte.
+  Sauber umsetzbar wären zwei Wege, beide brauchen Deine Entscheidung: **(A)** Vorschlag in das
+  vorhandene `metadata`-JSON am RawInput schreiben (kein Schema-Wechsel) + im Eingang als dezenten
+  Hinweis „Vorschlag: {Name}" anzeigen — Nachteil: der Einwerf-Kanal (Handy-Teilen) müsste den Namen
+  liefern, den gibt's noch nicht. **(B)** Eigenes Feld `suggestedAssigneeId` am RawInput (Schema-Wechsel
+  → Alleingang-Tabu). **Empfehlung:** #2 zurückstellen, bis der Handy-Einwerf-Fluss steht (der Vorschlag
+  gehört an dessen Anfang); solange lieber Backlog #3 Teilschritt 2 (dynamische Zeitskala) oder #5
+  (Momentum-Ladenhüter). Bitte in „## Aktuelle Richtung" bestätigen/umsteuern.
 - **2026-07-19 — Interview-Destillat als Grundlage aufgenommen + Ladenhüter entschieden.**
   Michaels Interview-Destillat ist jetzt oben als „GRUNDLAGE ALLER UI-ARBEIT" verankert
   (Kern, Delta zum Stand, sequenzierter Backlog) und im Volltext verbatim hinterlegt.
