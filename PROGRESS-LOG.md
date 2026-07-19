@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T10:23Z · Commit 327f20bf · Lauf-Nr. 11 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T12:27Z · Commit f808a0f8 · Lauf-Nr. 12 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # PROGRESS-LOG — Autopilot-Verlauf
 
@@ -449,3 +449,91 @@ Format je Eintrag:
 - Nächster Schritt: Dateien/Medien-Panel (c) braucht eine Backend-Anbindung (Thread↔Datei), die es
   noch nicht gibt → als Rückmeldung in ORCHESTRATOR abgelegt (Schema-Entscheidung nötig). Sonst
   Backlog #3 Teilschritt 2 (dynamische Zeitskala der horizontalen Timeline) oder Momentum-Ladenhüter (#5).
+
+### 2026-07-19 — Line-Detail: dynamische Zeitskala der horizontalen Timeline (Backlog #3, Teilschritt 2)
+- Richtung: Interview Punkt 4 / Backlog #3, Teilschritt 2 — die horizontale Storyline-Timeline
+  (bislang äquidistant, 170px je Knoten) soll die ECHTE Zeit abbilden: proportionale Abstände je
+  Zeit-Delta + dynamische Skala (Tage/Wochen/Jahre je nach Line-Alter).
+- Gebaut (nur Frontend, `/threads/[id]`):
+  - Abstände zwischen den Storyline-Knoten sind jetzt proportional zum echten Zeit-Delta. Umsetzung
+    ohne fragiles Absolut-Positionieren: jeder Knoten trägt einen `marginLeft` = (gap − Kartenbreite),
+    Achse bleibt normaler Flex-Flow (auto-Höhe, kein Kollaps). Der Achsen-Connector je Knoten hat
+    exakt die Dot-Center-Distanz zum nächsten (ein Connector nach rechts statt zweier Hälften).
+  - Skalierung am **Median-Delta** (robust gegen Ausreißer): ein typischer Abstand → TL_TARGET_GAP
+    (175px), gefloort auf MIN_GAP (158, > Kartenbreite → kollisionsfrei) und gedeckelt auf MAX_GAP
+    (430). Ergebnis: ähnliche Deltas wirken kompakt/fast äquidistant, echte Zeit-Lücken dehnen sich
+    sichtbar, Bursts rücken zusammen — ohne dass ein Jahres-Sprung alles zerquetscht oder die Achse
+    endlos scrollt. (Erster Wurf mit maxDelta-Normalisierung + MAX 430 schob JETZT-Knoten aus dem
+    Viewport — per Screenshot erkannt und auf Median umgestellt.)
+  - Dynamische Skalen-Beschriftung unter der Achse: „Zeitspanne {span} · Abstände maßstäblich",
+    Span menschlich (Std./Tage/Wochen/Monate/Jahre je nach Gesamtspanne). i18n de+en
+    (timelineScale/timelineSpanHours/Days/Weeks/Months/Years). SW-Cache v21→v22.
+  - Kein Schema/Backend-Eingriff. DESIGN-LOCK-konform (flach, gesperrte Palette, kein Glow).
+    Bewusst NOCH offen: Teilschritt 3 „Bereich markieren → zoomen".
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/threads/sim-t-messe` → HTTP 200.
+  Abnahme auf app.aikydo.de (Sim-Tenant, Line „sim: Messestand Halle 7 beschaffen", 4 Schritte):
+  Desktop 1440 — Achse START 9.Juli → 13.Juli → 16.Juli → JETZT 18.Juli (Accent-Dot); die Abstände
+  bilden die echten Deltas ab (9→13 = 4 Tage = breitester Abstand, 13→16 = 3 Tage, 16→18 = 2 Tage =
+  engster), Caption „Zeitspanne 9 Tage · Abstände maßstäblich" rendert. Mobil 390 — Achse scrollt
+  horizontal, Caption + Detail-Panel + gestapelte Panel-Spalte darunter, kein Layout-Bruch. Nur
+  bekannte/ignorierbare 401/403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_timeline-zeitskala.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_timeline-zeitskala-390.png
+- Commit: 16a50ec1 feat(threads): dynamische Zeitskala der horizontalen Timeline (Backlog #3, Teilschritt 2)
+- Nächster Schritt: Backlog #3, Teilschritt 3 — „Bereich markieren → zoomen" (Ausschnitt der Achse
+  per Drag markieren → hineinzoomen). Alternativ Momentum-Ladenhüter (#5, Variante B) als nächster
+  schemafreier Punkt.
+
+### 2026-07-19 — Line-Detail: Einwerfer je Storyline-Schritt sichtbar („wer")
+- Richtung: Interview-Kern — das Portal ist ein „Verantwortungs-Verteiler mit Gedächtnis"; „wer
+  bearbeitet / wer übernommen" zieht sich durch. Die Storyline zeigte bisher Datum + Medium + Text,
+  aber NICHT, wer den jeweiligen Schritt eingeworfen hat. Befund: `RawInput` hat längst `userId` +
+  `user`-Relation (Autor) — die Daten waren da, die Timeline lieferte sie nur nicht mit.
+- Gebaut (schemafrei, kein Migrations-Eingriff):
+  - Backend `threads.service.getTimeline`: `include: { user: { select: { id, name, email } } }` —
+    read-only, Scope bleibt `where: { tenantId, threadId }` (NICHT-MACHEN-Regel eingehalten).
+  - Frontend (`/threads/[id]`): `TimelineEntry.user` + Helper `authorName` (Name > E-Mail-Präfix).
+    Anzeige des Einwerfers auf der Achse **nur beim Start & bei Bearbeiter-Wechsel** (macht
+    Verantwortungs-Übergaben sichtbar, ohne Namens-Spam bei gleichem Autor); im Detail-Panel-Header
+    **immer** vollständig („{Medium} · {Datum} · {Name}"). SW-Cache v22→v23. DESIGN-LOCK-konform
+    (flach, gesperrte Palette, kein Icon-Kitsch — nur der Name in Sekundärgrau).
+- Geprüft: tsc backend+frontend sauber. Deploy NUR Prod (backend + frontend --no-cache),
+  `/threads/sim-t-messe` → HTTP 200. Abnahme auf app.aikydo.de (Sim-Tenant): Um den Übergabe-Fall
+  real zu zeigen, temporär EINEN Sim-Schritt eingefügt, den Ilva einwirft („sim: Grafik fuer
+  Standrueckwand uebernommen") → Achse zeigt am START „Nadja Brandt", das Detail-Panel den JETZT-
+  Schritt „Notiz · 19. Juli · Ilva Sork" (Übergabe Nadja→Ilva belegt). Mobil 390: Name rendert unter
+  dem Medium, Panel zeigt den Autor, kein Layout-Bruch. Danach den Temp-Schritt wieder gelöscht →
+  Sim-Baseline zurück auf 4 Schritte. Nur bekannte/ignorierbare 401/403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_storyline-autor.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_storyline-autor-390.png
+- Commit: 44cd874a feat(threads): Einwerfer je Storyline-Schritt (wer) in Timeline + Detail-Panel
+- Nächster Schritt: Backlog #3, Teilschritt 3 („Bereich markieren → zoomen", Drag-Interaktion —
+  per Playwright verifizierbar) oder Momentum-Ladenhüter (#5, Variante B). Denkbar auch: den Einwerfer
+  bzw. „WER bearbeitet" analog auf der Lines-Übersicht/Momentum sichtbar machen (Interview Punkt 3).
+
+### 2026-07-19 — Lines-Übersicht: „WER bearbeitet" je Line (Einwerfer-Avatare) (Interview Punkt 3)
+- Richtung: Interview Punkt 3 verlangt „pro Line sofort sichtbar: worum geht's, WER bearbeitet,
+  Pflege-Status". Farb-/Status/Summary/nextStep waren da, aber NICHT der „wer". Direkter Anschluss
+  an den vorigen Schritt (Einwerfer im Line-Detail) — dieselbe Datenquelle (`RawInput.user`).
+- Gebaut (schemafrei, kein Migrations-Eingriff):
+  - Backend `threads.service.listThreads`: liefert je Line `contributors` = distinkte Einwerfer
+    (Autoren der Zurufe), zuletzt-aktiv zuerst. Ein Extra-Query über alle Line-Zurufe
+    (`where: { tenantId, threadId: in ids }`) + JS-Gruppierung — kein N+1, kein Schema-Wechsel,
+    Tenant-Scope gewahrt. Name = `user.name` > E-Mail-Präfix.
+  - Frontend (`/threads`): `Thread.contributors` + Helper `initialsOf`. In der Meta-Zeile ein
+    kompakter, rechtsbündiger Initialen-Avatar-Cluster (20px-Kreise, Accent-getönt, überlappend
+    −6px), max 3 sichtbar + „+N", Tooltip mit vollen Namen („Bearbeitet von: …"). i18n de+en
+    (worksOn). SW-Cache v23→v24. DESIGN-LOCK-konform (flach, gesperrte Accent-Palette, keine
+    AI-Symbolik — nur Initialen).
+- Geprüft: tsc backend+frontend sauber. Deploy NUR Prod (backend + frontend --no-cache),
+  `/threads` → HTTP 200. Abnahme auf app.aikydo.de (Sim-Tenant, 8 Lines): Desktop 1440 — je Zeile
+  rechts der Einwerfer-Avatar (NB/PO/TR/IS = Nadja/Piet/Tomas/Ilva), in <2s erfassbar „wer an welcher
+  Line dran ist"; Momentum-Akzent + „Liegengeblieben"-Badges + Summary/Impact/nextStep intakt.
+  Mobil 390 — Meta-Zeile wrappt, Avatar rechtsbündig auf eigener Zeile, kein Bruch. Nur bekannte
+  401/403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_lines-wer-bearbeitet.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_lines-wer-bearbeitet-390.png
+- Commit: e21de72a feat(threads): WER bearbeitet je Line — Einwerfer-Avatare auf der Übersicht
+- Nächster Schritt: „WER" analog im Momentum-Cockpit (/mindmap) andeuten, oder Backlog #3 Teilschritt 3
+  (Zeitachse zoomen) bzw. Momentum-Ladenhüter (#5, Variante B). Offene Rückmeldungen (Dateien-Panel,
+  Projekt-Zuordnung, Absender-Vorschlag) warten weiter auf Michaels Entscheidung.
