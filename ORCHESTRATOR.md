@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T08:25Z · Commit 897569e8 · Lauf-Nr. 10 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T10:23Z · Commit 327f20bf · Lauf-Nr. 11 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # ORCHESTRATOR — Steuerung des AiKydo-Autopilot
 
@@ -93,7 +93,8 @@ Vom Interview neu/schärfer verlangt (Backlog, grob nach Wert × Aufwand):
 7. **Question-Sektion** — schnelle Ja/Nein-Entscheidungen an die Gruppe, sortiert
    offen/beantwortet (Punkt 7; „klein anbieten").
 
-**Regel:** Immer **ein** fertiger, selbst geprüfter Schritt pro Lauf (Screenshot-Beleg
+**Regel:** Jeder Punkt fertig + selbst geprüft + committet, **bevor** der nächste beginnt —
+pro Lauf so viele Punkte wie sauber machbar (Tempo siehe „## Aktuelle Richtung"). Screenshot-Beleg
 im PROGRESS-LOG). Reihenfolge oben ist Vorschlag, nicht Zwang — Michael kann in „##
 Aktuelle Richtung" jederzeit umsteuern. Bei echten Weggabelungen/Schema-Bedarf: „##
 Rückmeldungen", stoppen.
@@ -102,18 +103,82 @@ Rückmeldungen", stoppen.
 
 ## Aktuelle Richtung
 
-**Grundlage ist ab sofort das Interview-Destillat oben.** Nächster konkreter Schritt
-(schema-frei, hoher Wert, baut auf dem frisch gebauten Rausfisch-Fluss auf):
+### Tempo (Michael, 2026-07-19) — Vorrang vor jeder „ein Schritt pro Lauf"-Formulierung
+**Die Regel „EIN fertiger Schritt pro Lauf" ist aufgehoben.** Nutze das Zeitfenster
+(Deckel max 2 Std) **voll aus** — arbeite so viele Backlog-Punkte ab, wie **sauber**
+machbar sind. **Qualitäts-Gate bleibt hart:** jeder Punkt fertig + selbst geprüft
+(Screenshot) + committet, **bevor** der nächste beginnt. Keine halben Sachen — aber auch
+**kein Aufhören nach dem ersten Commit**, solange die Zeit für einen weiteren runden Punkt
+reicht. Niemals einen Punkt anfangen, den du nicht mehr sauber prüfen + committen kannst.
+Takt: **12 Läufe/Tag, alle 2 Std** (Überlapp-Sperre/flock bleibt — läuft ein Lauf lang,
+überspringt der nächste Slot sauber; das ist ok). Rate-/Kontingent-Limits → **selbst
+drosseln** (Regel existiert) und unter „## Rate-Limit-Beobachtungen" notieren, dann
+justiert Michael.
 
-**Eingang — beim Rausfischen den beabsichtigten nächsten Schritt festhalten.** Wer eine
-Kachel übernimmt („Das ist mein Fall"), hält direkt fest, was als Nächstes passieren
-soll → landet als `nextStep` der neu entstehenden Line. Zusätzlich der GTD-Hinweis:
-Wirkt der Schritt wie **unter 2 Minuten**, dezent „dann jetzt sofort erledigen"
-anbieten. Kein Zwang, überspringbar. DESIGN-LOCK, schnellste Erfassung.
+**Design-Angleichung an bestehende Seiten (Michael, 2026-07-19).** Lines-Übersicht und
+Line-Detail sollen sich an bereits gebauten, guten Mustern orientieren — **Muster im Code
+lesen und übernehmen, NICHT neu erfinden.** Referenzen sind unten mit Datei + Zeilen
+zitiert (bereits recherchiert). DESIGN-LOCK gilt; Momentum-Logik bleibt. Reihenfolge:
+**erst Schritt 1, dann Schritt 2** — beide (und weitere Backlog-Punkte) dürfen im selben
+Lauf drankommen, sobald der vorige sauber fertig + geprüft + committet ist (siehe Tempo oben).
 
-_(Vorher: „Line-Detailseite = die Storyline" — adressiert; Stand/Bereich sind Nebeninfo,
-Storyline + nextStep sind Hauptdarsteller, leerer Einstieg vorhanden. Siehe PROGRESS-LOG.
-Die im Interview verlangte HORIZONTALE Timeline mit Zoom ist als Backlog-Punkt 3 notiert.)_
+### Schritt 1 — LINES-ÜBERSICHT (`app/threads/page.tsx`) an die CHATS-Seite angleichen
+Zeilen-Mechanik soll sich anfühlen wie `app/chats/page.tsx`. **Referenz + Muster übernehmen:**
+- **State-Muster** (chats:45–53): `hoveredRow`, `selected:Set`, `menuOpenFor`, `renameFor` +
+  `menuRef` mit Click-outside-Listener (chats:96–104). `isSelectMode = selected.size>0`.
+- **Zeilen-Anatomie** (chats:252–346): flex-Row, `gap:0.75rem`, `padding:0.875rem 1rem`,
+  `borderBottom:1px solid rgba(255,255,255,0.08)`. **Links festes 20px-Slot** für die
+  Checkbox (`.chat-checkbox`, globals.css:1784–1816) — erscheint nur bei Hover ODER
+  Select-Mode (kein Layout-Sprung). **Mitte** = klickbarer Zeileninhalt (Titel + Meta).
+  **Rechts Kebab** (`MoreHorizontal`) — erscheint nur bei Hover & nicht im Select-Mode.
+- **Hover** ist JS-State (nicht CSS): `onMouseEnter/Leave` → Row-Bg `rgba(255,255,255,0.05)`.
+- **Kontextmenü-Dropdown** (chats:313–344): `position:absolute; top:100%; right:0`,
+  `bg:rgba(30,30,35,0.98)`, `border:1px solid rgba(255,255,255,0.08)`, `radius:12px`,
+  `minWidth:200px`, `boxShadow:0 4px 20px rgba(0,0,0,0.3)`, `backdropFilter:blur(8px)`.
+  Items = volle Breite, JS-Hover-Bg. Divider vor der destruktiven Aktion (`#ef4444`).
+  **Items sinngemäß für Lines:** Auswählen · **Abschließen** (statt Star/Markieren) ·
+  Umbenennen (inline wie chats, kein Modal) · **Projekt zuordnen** · Löschen (destruktiv).
+- **Select-Mode / Bulk-Bar** (chats:226–242): „alle auswählen" + Zähler + Bulk-Aktionen
+  (für Lines sinnvoll: mehrere abschließen / Projekt zuordnen / löschen). `minHeight:32px`
+  gegen Layout-Sprung.
+- **BLEIBT:** Momentum-Farbcodierung (Links-Akzent per inset box-shadow) + Sortierung
+  (liegengeblieben oben) — nur die Zeilen-Mechanik wird chats-like, die Momentum-Optik
+  obendrauf. **DESIGN-LOCK-Korrektur:** chats nutzt als Auswahl-/Fallback-Blau hart
+  `#3b82f6`/`rgba(59,130,246,.1)` — beim Übernehmen auf Brand-Accent **`#5F74D1`** ziehen.
+- Icons (`MoreHorizontal, Check, Edit, Move, Trash`) sind in chats inline-SVG → passende
+  in die Lines-Seite kopieren oder in `Icon.tsx` faktorisieren.
+
+### Schritt 2 — LINE-DETAIL (`app/threads/[id]/page.tsx`) rechte Spalte wie Projekt-Detail
+Heute einspaltig zentriert (`maxWidth:800px`). Ziel: **Timeline bleibt Hauptbühne links,
+rechts eine Panel-Spalte** im Stil von `app/projects/[id]/page.tsx`. **Referenz + Muster:**
+- **Layout** (projects:497–500): flex-Row, `gap:2.5rem`, links `flex:1, maxWidth:800px`,
+  rechts feste Spalte. **Rechts-Wrapper** (projects:669): `width/minWidth:380px`,
+  `border:1px solid rgba(255,255,255,0.08)`, `radius:18px`, `padding:1.4rem`,
+  `overflowY:auto`, `height:calc(100vh-4rem)`.
+- **Panels = gestapelte Divs** (kein Karten-Wrapper je Panel), je `marginBottom:1.75rem`,
+  gleicher **Header** (projects:683): `h3 {margin:0; fontWeight:500; fontSize:0.95rem;
+  color:rgba(255,255,255,0.7)}` + rechts ein transparenter Action-Button.
+- **Panels für die Line (rechts):** (a) **Stand** = `summary`. (b) **Nächster Schritt** =
+  `nextStep` (editierbar; die vorhandene nextStep-Box wandert in dieses Panel).
+  (c) **Dateien/Medien** — Muster des Projekt-Files-Panels (projects:731–836): Upload-Button
+  im Header + gestrichelte Dropzone + Zeilenliste mit Hover-Checkbox & Aktions-Cluster.
+- **MOBIL (Michael-Vorgabe, MUSS neu gebaut werden):** Projekt-Detail hat **keine** Mobile-
+  Logik (feste 380px, kein Breakpoint) → hier **selbst** ergänzen: unter einem Breakpoint
+  (z.B. `window.innerWidth < 900`, State + resize-Listener) klappt die rechte Spalte
+  **unter die Timeline** (Row → Column, volle Breite). Das ist der einzige Punkt, der
+  bewusst NICHT kopiert, sondern ergänzt wird.
+- **Datenlage prüfen:** Haben Lines/Threads überhaupt eine Datei-/Medien-Anbindung
+  (Endpoint/Relation)? Falls nicht, ist das ein Backend-/Schema-Thema → **erst als
+  Rückmeldung** notieren und stoppen, nicht im Alleingang bauen. Panels (a)/(b) gehen
+  ohne Backend-Eingriff.
+
+### Schritt 3 — NOTIERT FÜR SPÄTER (nicht jetzt bauen)
+„Kydos" als kleine Apps/Widgets in der rechten Spalte der Line — Idee **geparkt**.
+Wenn es soweit ist: `components/KydoCard.tsx` (`KydoCard`/`KydoGrid`/`KydoEmptyState`) ist
+das fertige Reuse-Target.
+
+_(Erledigt & abgelöst: „Eingang — beim Rausfischen den nächsten Schritt festhalten" (GTD,
+Backlog #1) ist gebaut/geprüft/deployed, siehe PROGRESS-LOG 04:00-Lauf.)_
 
 ## Tabu (zusätzlich zu PROMPT.md / CLAUDE.md „NICHT MACHEN")
 
@@ -135,7 +200,7 @@ STOP-Schalter und Cron-Deckel bleiben.
 ## Rate-Limit-Beobachtungen
 
 _(Autopilot trägt hier ein, wenn er auf API-/Rate-Limits stößt — Datum, Dienst,
-was passiert ist. Grundlage, um die Lauf-Frequenz zu justieren. Aktuell: 6 Läufe/Tag, alle 4h, je max 2h.)_
+was passiert ist. Grundlage, um die Lauf-Frequenz zu justieren. Aktuell: 12 Läufe/Tag, alle 2h, je max 2h.)_
 
 - _(noch keine)_
 
@@ -230,6 +295,36 @@ _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
 
+- **2026-07-19 — Schritt 2 gebaut (Line-Detail zweispaltig) + Dateien-Panel braucht Schema-Entscheidung.**
+  Gebaut: Line-Detail (`/threads/[id]`) ist jetzt zweispaltig im Projekt-Detail-Stil — Timeline
+  bleibt Hauptbühne links, rechts eine 380px-Panel-Spalte (Stand + Nächster Schritt editierbar +
+  Abschließen). Mobil (< 900px) klappt die Spalte unter die Timeline. Screenshots im PROGRESS-LOG.
+  **Weggabelung Dateien/Medien-Panel (c) aus Schritt 2:** Der Thread/die Line hat KEINE Datei-/
+  Medien-Anbindung — kein `Attachment`/`ThreadFile`-Modell, keine Relation Thread↔Document, kein
+  Upload-Endpoint für Lines (es gibt zwar ein `Document`-Modell + `media`-Controller, aber unabhängig,
+  nicht an Threads gehängt). Ein Dateien-Panel im WhatsApp-Medien-Stil (Interview Punkt 4: „jeder darf
+  Material in jede Line teilen/hochladen") braucht also **ein neues Modell + Relation + Upload-Endpoint
+  = Prisma-Schema-Wechsel** → laut Tabu kein Alleingang. **Deshalb bewusst NICHT gebaut** (Panels (a)
+  Stand + (b) Nächster Schritt sind ohne Backend fertig). **Vorschlag zur Entscheidung:** ein Modell
+  `ThreadAttachment` (id, tenantId, threadId, uploaderUserId, fileName, mimeType, url/storageKey,
+  createdAt) + `POST /threads/:id/attachments` (Upload) + `GET` (Liste) + Storage-Ziel (S3/lokal?).
+  Das ist die nächste größere Backend-Entscheidung. Bitte in „## Aktuelle Richtung" freigeben (dann baue
+  ich Migration Test→Prod + Panel) oder zurückstellen (dann mache ich Backlog #3 Teilschritt 2 /
+  Momentum-Ladenhüter #5 als schemafreie Schritte weiter).
+- **2026-07-19 — Schritt 1 gebaut (Lines-Übersicht chats-artig) + „Projekt zuordnen" bewusst offen.**
+  Gebaut: `/threads` fühlt sich jetzt an wie `/chats` (Hover-State, Checkbox-Slot ohne Layout-Sprung,
+  klickbare Zeile, Kebab-Menü Auswählen/Abschliessen/Umbenennen/Löschen, Select-Mode + Bulk-Bar),
+  Momentum-Optik bleibt obendrauf, Auswahl-Akzent auf Brand `#5F74D1`. Backend: `DELETE /threads/:id`
+  (löst Zurufe ab, kein Datenverlust). Screenshots im PROGRESS-LOG.
+  **Weggabelung „Projekt zuordnen" (im Muster für das Menü/die Bulk-Bar genannt):** Der Thread hat
+  zwar schon `projectId String?`, aber ausdrücklich als „Fundament, noch ohne UI" — es gibt NIRGENDS
+  eine Anzeige, welche Line zu welchem Projekt gehört. Eine „Projekt zuordnen"-Aktion würde also ein
+  unsichtbares Ergebnis erzeugen (nicht per Screenshot abnehmbar) und die Zeile bloß mit einem toten
+  Menü-Eintrag + Picker-Modal aufblähen. **Deshalb bewusst NICHT gebaut** (das Qualitäts-Gate verlangt
+  ein prüfbares Ergebnis). **Vorschlag:** „Projekt zuordnen" erst bauen, wenn die Projekt↔Line-Zuordnung
+  irgendwo sichtbar wird (z.B. Projekt-Badge in der Zeile / Filter nach Projekt / Projekt-Detail listet
+  seine Lines). Dann ist es EIN runder Schritt: DTO+Service (`projectId`, kein Schema-Wechsel) + Picker
+  (chats-Move-Modal-Muster) + Anzeige. Bitte in „## Aktuelle Richtung" bestätigen/umsteuern.
 - **2026-07-19 — Backlog #3 gebaut (horizontale Timeline, Teilschritt 1) + #2 braucht Entscheidung.**
   Gebaut: die Line-Detail-Storyline ist jetzt eine echte HORIZONTALE Timeline (Interview Punkt 4) —
   Start links → Jetzt rechts, Datum/Medium/Kurztext je Knoten, Auswahl → Volltext-Panel darunter.

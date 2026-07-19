@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T08:25Z · Commit 897569e8 · Lauf-Nr. 10 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T10:23Z · Commit 327f20bf · Lauf-Nr. 11 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # PROGRESS-LOG — Autopilot-Verlauf
 
@@ -366,3 +366,86 @@ Format je Eintrag:
   echtem Zeit-Delta, Skalenwechsel Tage/Wochen/Jahre je nach Line-Alter). Danach Teilschritt 3
   „Bereich markieren → zoomen". Alternativ Backlog #2 (Absender-Vorschlag) als Rückmeldung in
   ORCHESTRATOR ablegen und Michaels Entscheidung abwarten.
+
+### 2026-07-19 — Lines-Übersicht: chats-artige Zeilen-Mechanik (Aktuelle Richtung Schritt 1)
+- Richtung: ORCHESTRATOR „Aktuelle Richtung" Schritt 1 — die Lines-Übersicht (`/threads`)
+  soll sich in der Zeilen-Mechanik anfühlen wie `/chats` (Muster übernehmen, nicht neu erfinden),
+  die Momentum-Optik bleibt obendrauf.
+- Gebaut (Frontend `/threads` + kleines Backend-Add):
+  - Karten → Zeilen: Hover-State (JS, `hoveredRow`), Checkbox-Slot (festes 20px, erscheint nur
+    bei Hover/Select-Mode → kein Layout-Sprung), klickbarer Zeileninhalt (→ Storyline), Kebab
+    (`MoreHorizontal`) nur bei Hover & nicht im Select-Mode.
+  - Kontextmenü-Dropdown (chats-Muster: `rgba(30,30,35,0.98)`, radius 12, blur, boxShadow):
+    Auswählen · Abschliessen · Umbenennen (inline, kein Modal) · [Divider] · Löschen (#ef4444).
+  - Select-Mode + Bulk-Bar (`minHeight:32px`): alle auswählen + Zähler + mehrere abschließen /
+    mehrere löschen + Schließen. Zähler-/„Auswählen"-Zeile im Nicht-Select-Modus.
+  - BLEIBT: Momentum-Farbcodierung (Links-Akzent per inset box-shadow, überlebt Hover) +
+    Sortierung (liegengeblieben oben) + Summary/nextStep/Badges je Zeile. Auswahl-Akzent auf
+    Brand `#5F74D1` gezogen (neue `.line-checkbox`, DESIGN-LOCK-Korrektur statt chats-Blau).
+  - Backend (kein Schema-Wechsel; Feld/Route neu, nicht Prisma-Migration): `DELETE /threads/:id`
+    (`threadsService.removeThread`) — löst die Zurufe der Line ab (`threadId=null` + `dismissedAt`,
+    kein harter Datenverlust), räumt Dependencies/Entities, Audit `THREAD_DELETED`. Rename nutzt
+    vorhandenes `PATCH /threads/:id {title}`, Abschließen `POST /threads/:id/close`.
+  - „Projekt zuordnen" (im Muster genannt) BEWUSST NICHT gebaut → siehe Rückmeldung: das
+    `projectId`-Feld am Thread ist „Fundament, noch ohne UI", eine Zuordnung wäre nirgends
+    sichtbar (nicht per Screenshot abnehmbar). Als Rückmeldung notiert, statt eine unsichtbare
+    Aktion zu liefern. i18n de+en (lineCount/deleteConfirm/deleteMultipleConfirm). SW-Cache v19→v20.
+- Geprüft: tsc backend+frontend sauber. Deploy NUR Prod (backend + frontend --no-cache).
+  `/threads` → HTTP 200; `DELETE /threads/xxx` ohne Auth → 401 (Route existiert, nicht 404).
+  Abnahme auf app.aikydo.de (Sim-Tenant, 8 Lines) mit Screenshot-Tool + Playwright:
+  (1) Desktop 1440 — Zeilen mit Momentum-Akzent, Summary/Status/Badges/nextStep, in <2s erfassbar;
+  (2) Hover → Checkbox links + Kebab rechts, Menü zeigt Auswählen/Abschliessen/Umbenennen/Löschen;
+  (3) Select-Mode → Bulk-Bar (Select-all, „1 ausgewählt", Abschließen/Löschen/X), Brand-Checkbox,
+  kein Layout-Sprung; (4) Rename funktional: Titel geändert + über Reload persistiert (PATCH);
+  (5) Mobil 390 — Zeilen wrappen sauber, Ellipsis, kein Bruch. Nur bekannte 401/403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_lines-rows-chatslike.png
+  - Screenshot (Kebab-Menü): .autopilot/shots/2026-07-19_lines-rows-menu.png
+  - Screenshot (Select-Mode): .autopilot/shots/2026-07-19_lines-rows-select.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_lines-rows-390.png
+- Sim sauber gehalten: der Rename-Funktionstest (Playwright) hatte beim Revert wegen der
+  Momentum-Neusortierung (Rename setzt lastActivity=jetzt) die falsche Zeile erwischt; die zwei
+  betroffenen Sim-Titel (sim-t-foerder, sim-t-reel) + deren lastActivity direkt in der Prod-DB
+  aus seed.sql wiederhergestellt → Sim-Tenant im Ausgangszustand.
+- Commit: 94e4df7d feat(threads): Lines-Übersicht auf chats-artige Zeilen-Mechanik + Delete-Endpoint
+- Nächster Schritt: Aktuelle Richtung Schritt 2 — Line-Detail (`/threads/[id]`) rechte Panel-Spalte
+  im Stil von `app/projects/[id]/page.tsx` (Stand/Nächster Schritt/Dateien), Timeline bleibt links.
+  Vorab Datenlage prüfen: Dateien/Medien-Anbindung an Lines? Falls Schema/Endpoint fehlt → erst
+  Rückmeldung. Panels Stand + Nächster Schritt gehen ohne Backend-Eingriff.
+
+### 2026-07-19 — Line-Detail zweispaltig: Panel-Spalte rechts (Aktuelle Richtung Schritt 2)
+- Richtung: ORCHESTRATOR „Aktuelle Richtung" Schritt 2 — Line-Detail (`/threads/[id]`) am
+  Projekt-Detail-Muster (`app/projects/[id]/page.tsx`) orientieren: Timeline bleibt Hauptbühne
+  links, rechts eine feste Panel-Spalte.
+- Gebaut (nur Frontend `/threads/[id]`):
+  - Layout: flex-Row, `gap:2.5rem`, `maxWidth:1200px` zentriert; links `flex:1, maxWidth:800px`
+    (Storyline-Hauptbühne), rechts feste Panel-Spalte `width/minWidth:380px`, `border 1px
+    rgba(255,255,255,0.08)`, `radius:18px`, `padding:1.4rem`, auf Desktop `position:sticky;
+    top:1rem; maxHeight:calc(100vh-2rem); overflowY:auto`.
+  - Rechte Panels (Projekt-Muster: `h3` fontWeight 500 / 0.95rem / `rgba(255,255,255,0.7)`,
+    gestapelt je `marginBottom:1.75rem`): (a) **Stand** = `summary` (oder ruhiger Leerhinweis),
+    (b) **Nächster Schritt** = editierbar (Accent-Header `#5F74D1` + Edit-Icon, Accent-Box mit
+    Klick→Input, Enter speichert), (c) **Abschließen** = ruhige Ghost-Aktion + Close-Form INLINE
+    im Panel — ersetzt die alte fixe Bottom-Leiste (die im Zweispalter mit dem Panel kollidiert wäre).
+  - Links bleiben: Titel (editierbar), Meta-Zeile (+ Status/Bereich-Reveal), Blockiert, Entities,
+    Verlauf/Timeline (horizontale Storyline unverändert), Closing-Summary.
+  - **MOBIL (< 900px, State `isNarrow` + resize-Listener):** die rechte Spalte klappt unter die
+    Timeline (Row → Column, volle Breite, ohne sticky/feste Höhe) — bewusst ERGÄNZT, da das
+    Projekt-Detail keine Mobile-Logik hat (einziger Punkt, der nicht kopiert, sondern gebaut wurde).
+  - i18n de+en (standEmpty). SW-Cache v20→v21. DESIGN-LOCK-konform (flach, gesperrte Palette, kein Glow).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache), `/threads/sim-t-messe` → HTTP 200.
+  Abnahme auf app.aikydo.de (Sim-Tenant) mit Screenshot-Tool + Playwright:
+  (1) Desktop 1440 — links Verlauf (START 9.Juli → JETZT 18.Juli) + Detail-Panel, rechts die
+  380px-Panel-Spalte mit Stand + Nächster Schritt + „Erledigt"; sauber vom Projekt-Detail abgeleitet;
+  (2) nextStep funktional: über das rechte Panel getippt, „sim: Testschritt Panel" persistiert +
+  über Reload im Accent-Panel angezeigt (PATCH); (3) Mobil 390 (full page) — Timeline oben
+  (Hauptbühne, horizontal scrollbar), die Panel-Spalte klappt darunter, volle Breite, kein Bruch.
+  Nur bekannte/ignorierbare 401/403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_detail-zweispaltig.png
+  - Screenshot (nextStep-Panel befüllt): .autopilot/shots/2026-07-19_detail-nextstep-panel.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_detail-zweispaltig-390.png
+- Sim sauber gehalten: Test-nextStep von sim-t-messe wieder geleert, lastActivity auf Seed-Wert
+  (now - 3h) zurückgesetzt → Sim-Tenant im Ausgangszustand.
+- Commit: 14bbdd76 feat(threads): Line-Detail zweispaltig — Panel-Spalte rechts (Projekt-Detail-Stil)
+- Nächster Schritt: Dateien/Medien-Panel (c) braucht eine Backend-Anbindung (Thread↔Datei), die es
+  noch nicht gibt → als Rückmeldung in ORCHESTRATOR abgelegt (Schema-Entscheidung nötig). Sonst
+  Backlog #3 Teilschritt 2 (dynamische Zeitskala der horizontalen Timeline) oder Momentum-Ladenhüter (#5).
