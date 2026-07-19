@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T14:24Z · Commit 24b26b0c · Lauf-Nr. 13 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T16:22Z · Commit 1fb043c4 · Lauf-Nr. 14 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # ORCHESTRATOR — Steuerung des AiKydo-Autopilot
 
@@ -294,6 +294,19 @@ freuen, wenn du Teil des Teams wirst."
 _(Der Autopilot schreibt hier Vorschläge, Weggabelungen und Blocker rein —
 Format: „Ich habe X gemacht, Vorschlag: … — oder Alternative …". Michael antwortet
 unter „## Aktuelle Richtung".)_
+
+- **2026-07-19 (späterer Lauf) — 3 schemafreie Punkte, Interview Punkt 1 (Pool-Kachel) ist komplett.**
+  Sauber gebaut+geprüft+deployed: (1) **Einwerfer je Eingangs-Kachel** — „wer es eingeworfen hat" (Punkt 1)
+  war auf der Pool-Kachel unsichtbar, obwohl `RawInput.user` längst da ist; jetzt dezenter Initialen-Avatar
+  + „von {Name}" rechts in der Meta-Zeile. (2) **Medium-Badge mit Icon + Label** statt rohem Typ-String
+  („VOICE"→Mikro+„Sprachnotiz" usw.) — Herkunft/Medium auf einen Blick, konsistent mit der Storyline.
+  (3) **Momentum-Balance-Zähler** an VERLIERT/GEWINNT („· 5" / „3 ·") — die abstrakte Summe wird zur
+  konkreten Anzahl (Punkt 5). Details/Screenshots im PROGRESS-LOG.
+  **Engpass unverändert:** Alle verbleibenden großen Punkte brauchen weiter Deine Schema-/Konzept-
+  Entscheidung — **#7 Question-Sektion** (größter Hebel, schaltet Ladenhüter-Typ 2 + #6-Benachrichtigung
+  frei), **#6 Benachrichtigung**, **#4 Dateien-Panel**, **#2 Absender-Vorschlag**. Bitte einen davon in
+  „## Aktuelle Richtung" freigeben (Empfehlung #7), sonst bleibt nur noch Feinschliff/Skalierungs-Arbeit,
+  die mit 8 Sim-Lines schwer sauber abnehmbar ist (z.B. Momentum Top-N bei vielen Lines).
 
 - **2026-07-19 — Lauf mit 3 Punkten fertig; die schemafreie Fläche ist weitgehend gebaut, nächste
   Tranche braucht Schema-/Backend-Entscheidungen.** In diesem Lauf sauber gebaut+geprüft+deployed:

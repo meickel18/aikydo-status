@@ -1,4 +1,4 @@
-> **Stand:** 2026-07-19T14:24Z · Commit 24b26b0c · Lauf-Nr. 13 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
+> **Stand:** 2026-07-19T16:22Z · Commit 1fb043c4 · Lauf-Nr. 14 · automatischer Spiegel, nach jedem Autopilot-Lauf aktualisiert. Cache-Hinweis: raw.githubusercontent kann bis ~5 Min alt sein — diese Zeile zeigt den echten Stand.
 
 # PROGRESS-LOG — Autopilot-Verlauf
 
@@ -634,3 +634,81 @@ Format je Eintrag:
   Question-Sektion (#7), die es noch nicht gibt (wahrscheinlich neues Modell → Schema-Tabu → Rückmeldung).
   Sonst „WER" im Momentum-Cockpit oder Backlog-Feinschliff. Offene Rückmeldungen (Dateien-Panel,
   Projekt-Zuordnung, Absender-Vorschlag, Question-Sektion) warten auf Michaels Entscheidung.
+
+### 2026-07-19 — Eingang: Einwerfer je Pool-Kachel sichtbar (Interview Punkt 1 — „wer es eingeworfen hat")
+- Befund: Interview Punkt 1 verlangt auf jeder Eingangs-Kachel „Herkunftsquelle + WER es eingeworfen hat
+  auf einen Blick". Die Karte zeigte bislang nur den Medium-Typ (VOICE/CHAT/EMAIL/PHOTO) + Relativzeit —
+  der Einwerfer fehlte komplett, obwohl die Daten da sind (`RawInput.user`/Autor, Relation `rawInputAuthor`,
+  `userId` required). Dieselbe „wer"-Datenquelle, die schon in Timeline (Einwerfer je Schritt) und
+  Lines-Übersicht (Contributor-Avatare) genutzt wird — im Eingang war sie ungenutzt.
+- Gebaut (schemafrei, kein Migrations-Eingriff):
+  - Backend `inbox.service.listInbox`: den Autor mitliefern (`user: { id, name, email }`), read-only,
+    Tenant-Scope unverändert (`where: { tenantId, threadId: null, dismissedAt: null }`), kein Schema-Wechsel.
+  - Frontend (`/eingang`): dezenter Einwerfer-Cluster rechtsbündig in der Meta-Zeile (`marginLeft:auto`) —
+    Initialen-Avatar (20px, Accent-getönt `rgba(95,116,209,0.18)`, exakt das /threads-Muster) + „von {Name}"
+    in Sekundärgrau, Tooltip „Eingeworfen von {Name}". Name = `user.name` > E-Mail-Präfix (Helper
+    `authorLabel`). Bewusst getrennt vom bestehenden „Übernommen von"-Feld unten (Einwerfer ≠ wer übernimmt
+    — genau die Interview-Unterscheidung). i18n de+en (thrownIn/thrownInBy). SW-Cache v27→v28.
+    DESIGN-LOCK-konform (flach, gesperrte Accent-Palette, keine AI-Symbolik — nur Initialen + Name).
+- Geprüft: tsc backend+frontend sauber. Deploy NUR Prod (backend + frontend --no-cache). `/eingang` → HTTP 200.
+  Abnahme auf app.aikydo.de (Sim-Tenant, 5 Zurufe mit vier verschiedenen Einwerfern): Desktop 1440 — je Karte
+  rechts oben der Einwerfer, sichtbar differenziert („NB von Nadja Brandt" auf dem Voice-Zuruf, „TR von Tomas
+  Reuter" auf dem Chat-Zuruf usw.), in <2s erfassbar „von wem kam das". Vorschlags-Hierarchie/Aktionen/
+  „Übernommen von" intakt. Mobil 390 — Einwerfer rechtsbündig in der Meta-Zeile, wrappt sauber, kein
+  Layout-Bruch. Nur bekannte/ignorierbare 401 (new-users-count) / 403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_eingang-einwerfer.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_eingang-einwerfer-390.png
+- Commit: (dieser Lauf) feat(eingang): Einwerfer je Pool-Kachel sichtbar (Interview Punkt 1)
+- Nächster Schritt: Damit ist Interview Punkt 1 („Merkmale auf einen Blick: Herkunftsquelle + wer eingeworfen")
+  auf der Pool-Kachel rund. Nächste schemafreie Kandidaten: „WER" im Momentum-Cockpit (/mindmap), oder
+  Interview Punkt 5 Momentum-Skalierung (Top-N bei vielen Lines — mit 8 Sim-Lines aber schwer per Screenshot
+  abnehmbar). Blockiert bleiben #7 Question-Sektion, #6 Benachrichtigung, #4 Dateien-Panel, #2 Absender-
+  Vorschlag (alle brauchen Michaels Schema-/Konzept-Entscheidung — siehe ORCHESTRATOR Rückmeldungen).
+
+### 2026-07-19 — Eingang: Medium-Badge mit Icon + Label statt rohem Typ-String (Interview Punkt 1 — Herkunftsquelle)
+- Befund: Direkter Anschluss an den Einwerfer-Schritt. Interview Punkt 1 verlangt „Merkmale auf einen Blick:
+  Herkunftsquelle + wer eingeworfen hat". Der Einwerfer ist jetzt da; die Herkunft/Medium zeigte die Karte
+  aber nur als rohen Uppercase-Typ-String („VOICE", „CHAT", „EMAIL", „PHOTO") — technisch, unpoliert und
+  INKONSISTENT zur Storyline-Timeline, die längst eine warme Medium-Sprache spricht (Icon + Sprachnotiz/
+  Foto/E-Mail/Notiz, siehe Lauf „Zuruf-Medium je Storyline-Schritt").
+- Gebaut (nur Frontend, `/eingang`): Das Medium-Badge nutzt jetzt dasselbe flache Icon + lokalisierte Label
+  wie die Storyline — Sprachnotiz (Mikrofon), Foto (Kamera), E-Mail (Umschlag), Notiz/Chat (Sprechblase).
+  Lokales `MediumIcon` (SVGs 1:1 aus der Storyline übernommen, currentColor, 12px) + Label-Helper mit
+  Fallback auf „Notiz" für unbekannte Typen. Accent-Pille bleibt (gesperrte Palette), nur Inhalt = Icon+Label
+  statt Uppercase-String. Kein Backend/Schema-Eingriff. i18n de+en (medium.voice/photo/email/chat).
+  SW-Cache v28→v29. DESIGN-LOCK-konform (flach, gesperrte Accent-Palette, keine AI-Symbolik).
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache). `/eingang` → HTTP 200. Abnahme auf
+  app.aikydo.de (Sim-Tenant, 5 Zurufe, alle vier Medientypen vertreten) mit Screenshot-Tool: Full-Page 1440
+  zeigt je Karte das korrekte Medium-Badge — „Sprachnotiz" (Mikro, Zoll-Voice), „Notiz" (Sprechblase,
+  Statiker-Chat), „E-Mail" (Umschlag, Sponsoring), „Foto" (Kamera, Whiteboard), „Notiz" (Rollup-Chat) —
+  plus der Einwerfer rechts (Nadja/Tomas/Piet/Ilva). Mobil 390: Badge + Einwerfer in der Meta-Zeile, wrappt
+  sauber, kein Layout-Bruch. Nur bekannte/ignorierbare 401 (new-users-count) / 403.
+  - Screenshot (Desktop Full): .autopilot/shots/2026-07-19_eingang-medium-full.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_eingang-medium-390.png
+- Commit: (dieser Lauf) feat(eingang): Medium-Badge mit Icon + Label statt rohem Typ-String
+- Nächster Schritt: Interview Punkt 1 ist damit auf der Pool-Kachel komplett (Medium/Herkunft + Einwerfer +
+  Zeit + Vorschlags-Hierarchie + Übernahme + nextStep-Capture). Nächste schemafreie Kandidaten: „WER" im
+  Momentum-Cockpit (/mindmap), Momentum-Skalierung (Top-N, schwer per 8-Sim-Lines abnehmbar). Blockiert:
+  #7 Question-Sektion, #6 Benachrichtigung, #4 Dateien-Panel, #2 Absender-Vorschlag (Michaels Entscheidung).
+
+### 2026-07-19 — Momentum-Cockpit: Balance-Zähler an VERLIERT/GEWINNT (Interview Punkt 5)
+- Befund: Der Cockpit-Kopf zeigte nur die abstrakte Gesamtsumme (z.B. −93). Interview Punkt 5 will „aktiv
+  vs. vernachlässigt auf einen Blick" — die Summe allein verrät aber nicht, ob das EINE katastrophale oder
+  FÜNF mittelmäßige Lines sind (Anzahl und Magnitude sind darin vermischt). Die Balance der Firma (wie viele
+  Vorhaben verlieren vs. gewinnen an Momentum) war nur qualitativ aus dem Fächer ablesbar, nicht als Zahl.
+- Gebaut (nur Frontend, `/mindmap`): An die bestehenden Kopf-Labels VERLIERT/GEWINNT hängt je ein Zähler —
+  `losingCount` (m<0) links, `gainingCount` (m>0) rechts, konsistent zur Karten-Semantik (die Seiten sind
+  per Vorzeichen definiert, nicht per /threads-3-Bucket). Dezent rot/grün getönt (#c98a8a / #7cba97), echot
+  die Fächerfarben, ohne sie zu überstrahlen — die Bespoke-Karte darf Farbe (DESIGN-LOCK-Ausnahme). Zähler
+  erscheint nur, wenn > 0. Kein neuer i18n-Key (Zahl sprachneutral). SW-Cache v29→v30. Kein Backend/Schema.
+- Geprüft: tsc frontend sauber. Deploy NUR Prod (frontend --no-cache). `/mindmap` → HTTP 200. Abnahme auf
+  app.aikydo.de (Sim-Tenant, 8 Lines): Desktop 1440 — Kopf „VERLIERT · 5" (rot) links, „3 · GEWINNT" (grün)
+  rechts, Summe −93; die Zähler stimmen exakt mit dem Fächer überein (5 rote Lines −100…−3, 3 grüne +26…+95).
+  Cockpit-Glow + Ladenhüter-Fläche darunter unverändert intakt. Mobil 390 — Zähler in der Label-Zeile, kein
+  Layout-Bruch. Nur bekannte/ignorierbare 401 (new-users-count) / 403.
+  - Screenshot (Desktop): .autopilot/shots/2026-07-19_momentum-balance-count.png
+  - Screenshot (Mobil 390): .autopilot/shots/2026-07-19_momentum-balance-count-390.png
+- Commit: (dieser Lauf) feat(momentum): Balance-Zähler an VERLIERT/GEWINNT (Interview Punkt 5)
+- Nächster Schritt: Momentum-Skalierung auf viele Lines (Top-N beide Richtungen bei 30–100 Lines) ist der
+  logische nächste Punkt 5-Schritt, aber mit nur 8 Sim-Lines nicht sauber per Screenshot abnehmbar (Top-10-
+  Deckel greift nicht) → besser mit mehr Sim-Daten oder Michaels OK. Blockiert bleiben #7/#6/#4/#2 (Schema).
